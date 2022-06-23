@@ -38,14 +38,26 @@ module.exports.createCard = (req, res) => {
 // DELETE-запрос удаляет карточку по _id.
 module.exports.deleteCard = (req, res) => {
   Card.findByIdAndRemove(req.params.cardId)
+    .orFail(() => {
+      const error = new Error('Передан несуществующий _id карточки.');
+      error.statusCode = 404;
+      throw error;
+    })
     .then((user) => res.status(200).send({ data: user }))
     .catch((err) => {
       if (err.name === 'ValidationError' || err.name === 'CastError') {
-        return res.status(NOT_FOUND).send({
+        res.status(ERROR_CODE).send({
           message: 'Карточка с указанным _id не найдена..',
         });
+        return;
       }
-      return res.status(SERVER_ERROR).send({ message: 'Ошибка по умолчанию.' });
+      if (err.statusCode === 404) {
+        res.status(NOT_FOUND).send({
+          message: err.message,
+        });
+        return;
+      }
+      res.status(SERVER_ERROR).send({ message: 'Ошибка по умолчанию.' });
     });
 };
 
