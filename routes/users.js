@@ -1,9 +1,15 @@
 const router = require('express').Router();
 
-const {findUsers, findByIdUser, createUser, updateUserMe, updateUserAvatar} = require('../controllers/users')
+const {
+  findUsers,
+  findByIdUser,
+  createUser,
+  updateUserMe,
+  updateUserAvatar,
+} = require('../controllers/users');
 
 // сработает при GET-запросе на URL /users
-router.get('/', findUsers)
+router.get('/', findUsers);
 
 // сработает при GET-запросе на URL /users/:userId
 router.get('/:userId', findByIdUser);

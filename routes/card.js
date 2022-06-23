@@ -1,9 +1,15 @@
 const router = require('express').Router();
 
-const { findCards, createCard, deleteCard, likeCard, dislikeCard} = require('../controllers/card')
+const {
+  findCards,
+  createCard,
+  deleteCard,
+  likeCard,
+  dislikeCard,
+} = require('../controllers/card');
 
 // сработает при GET-запросе на URL /cards возвращает все карточки
-router.get('/', findCards)
+router.get('/', findCards);
 
 // сработает при POST-запросе на URL //cards — создаёт карточку
 router.post('/', createCard);
@@ -12,10 +18,9 @@ router.post('/', createCard);
 router.delete('/:cardId', deleteCard);
 
 // сработает при PUT-запросе на URL /:cardId/likes — поставить лайк карточке
-router.put('./:cardId/likes', likeCard)
+router.put('./:cardId/likes', likeCard);
 
-// сработает при DELETE-запросе на URL /:cardId/likes — поставить лайк карточке
-router.delete('./:cardId/likes', dislikeCard)
-
+// сработает при DELETE-запросе на URL /:cardId/likes — поставить дизлайк карточке
+router.delete('./:cardId/likes', dislikeCard);
 
 module.exports = router;

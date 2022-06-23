@@ -1,4 +1,3 @@
-
 const mongoose = require('mongoose');
 
 // Опишем схему:
@@ -18,18 +17,18 @@ const catrdSchema = new mongoose.Schema({
     ref: 'user',
     required: true,
   },
-  likes: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'user',
-    default: [],
-
-  }],
-  createdAt:{
+  likes: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'user',
+      default: [],
+    },
+  ],
+  createdAt: {
     type: Date,
-    default: Date.now
-
-  }
-})
+    default: Date.now,
+  },
+});
 
 // создаём модель и экспортируем её
 module.exports = mongoose.model('card', catrdSchema);
