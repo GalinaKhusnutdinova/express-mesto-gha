@@ -9,7 +9,7 @@ module.exports.findCards = (req, res) => {
   Card.find({})
     .then((cards) => res.status(200).send({ data: cards }))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
         return res.status(ERROR_CODE).send({
           message: 'Переданы некорректные данные при создание карточки.',
         });
@@ -27,7 +27,7 @@ module.exports.createCard = (req, res) => {
   Card.create({ name, link, owner })
     .then((card) => res.status(201).send({ data: card }))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
         return res.status(ERROR_CODE).send({
           message: 'Переданы некорректные данные при создание карточки.',
         });
@@ -41,7 +41,7 @@ module.exports.deleteCard = (req, res) => {
   Card.findByIdAndRemove(req.params.cardId)
     .then((user) => res.status(200).send({ data: user }))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
         return res.status(NOT_FOUND).send({
           message: 'Карточка с указанным _id не найдена..',
         });
@@ -64,7 +64,7 @@ module.exports.likeCard = (req, res) => {
     })
     .then((likes) => res.status(200).send({ data: likes }))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
         res.status(ERROR_CODE).send({
           message: 'Переданы некорректные данные для постановки лайка.',
         });
@@ -94,7 +94,7 @@ module.exports.dislikeCard = (req, res) => {
     })
     .then((dislikes) => res.status(200).send({ data: dislikes }))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
         res.status(ERROR_CODE).send({
           message: 'Переданы некорректные данные для снятии лайка.',
         });

@@ -9,7 +9,7 @@ module.exports.findUsers = (req, res) => {
   User.find({})
     .then((users) => res.status(200).send({ data: users }))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
         res.status(ERROR_CODE).send({
           message: 'Переданы некорректные данные при создании пользователя.',
         });
@@ -28,12 +28,17 @@ module.exports.findByIdUser = (req, res) => {
       throw error;
     })
     .then((user) => res.status(200).send({ data: user }))
+    // eslint-disable-next-line consistent-return
     .catch((err) => {
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
+        return res.status(ERROR_CODE).send({
+          message: 'Переданы некорректные данные при обновлении профиля.',
+        });
+      }
       if (err.statusCode === 404) {
-        res.status(NOT_FOUND).send({
+        return res.status(NOT_FOUND).send({
           message: err.message,
         });
-        return;
       }
       res.status(SERVER_ERROR).send({ message: 'Ошибка по умолчанию.' });
     });
@@ -46,7 +51,7 @@ module.exports.createUser = (req, res) => {
   User.create({ name, about, avatar })
     .then((user) => res.status(200).send({ data: user }))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
         return res.status(ERROR_CODE).send({
           message: 'Переданы некорректные данные при создании пользователя.',
         });
@@ -59,6 +64,8 @@ module.exports.createUser = (req, res) => {
 module.exports.updateUserMe = (req, res) => {
   const { name, about } = req.body;
   const { _id } = req.user._id;
+  // eslint-disable-next-line no-console
+  console.log(_id);
 
   User.findByIdAndUpdate(
     _id,
@@ -75,7 +82,7 @@ module.exports.updateUserMe = (req, res) => {
     })
     .then((user) => res.status(200).send({ data: user }))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
         res.status(ERROR_CODE).send({
           message: 'Переданы некорректные данные при обновлении профиля.',
         });
@@ -111,7 +118,7 @@ module.exports.updateUserAvatar = (req, res) => {
     })
     .then((data) => res.status(200).send({ data }))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
         res.status(ERROR_CODE).send({
           message: 'Переданы некорректные данные при обновлении профиля.',
         });
