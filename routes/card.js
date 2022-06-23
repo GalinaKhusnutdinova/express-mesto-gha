@@ -18,9 +18,9 @@ router.post('/', createCard);
 router.delete('/:cardId', deleteCard);
 
 // сработает при PUT-запросе на URL /:cardId/likes — поставить лайк карточке
-router.put('./:cardId/likes', likeCard);
+router.put('/:cardId/likes', likeCard);
 
 // сработает при DELETE-запросе на URL /:cardId/likes — поставить дизлайк карточке
-router.delete('./:cardId/likes', dislikeCard);
+router.delete('/:cardId/likes', dislikeCard);
 
 module.exports = router;

@@ -61,7 +61,7 @@ module.exports.likeCard = (req, res) => {
       error.statusCode = 404;
       throw error;
     })
-    .then((likes) => res.status(200).send({ data: likes }))
+    .then((likes) => res.status(200).send({ likes }))
     .catch((err) => {
       if (err.name === 'ValidationError' || err.name === 'CastError') {
         res.status(ERROR_CODE).send({
