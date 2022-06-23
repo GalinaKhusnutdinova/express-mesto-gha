@@ -88,19 +88,19 @@ module.exports.dislikeCard = (req, res) => {
   )
     .orFail(() => {
       const error = new Error('Передан несуществующий _id карточки.');
-      error.statusCode = 404;
+      error.statusCode = 400;
       throw error;
     })
-    .then((dislikes) => res.status(200).send({ data: dislikes }))
+    .then((dislikes) => res.status(200).send({ dislikes }))
     .catch((err) => {
       if (err.name === 'ValidationError' || err.name === 'CastError') {
-        res.status(ERROR_CODE).send({
+        res.status(NOT_FOUND).send({
           message: 'Переданы некорректные данные для снятии лайка.',
         });
         return;
       }
-      if (err.statusCode === 404) {
-        res.status(NOT_FOUND).send({
+      if (err.statusCode === 400) {
+        res.status(ERROR_CODE).send({
           message: err.message,
         });
         return;
