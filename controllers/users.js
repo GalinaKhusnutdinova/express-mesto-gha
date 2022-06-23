@@ -9,7 +9,7 @@ module.exports.findUsers = (req, res) => {
   User.find({})
     .then((users) => res.status(200).send({ data: users }))
     .catch((err) => {
-      if (err.name === 'ValidstionError') {
+      if (err.name === 'ValidationError') {
         res.status(ERROR_CODE).send({
           message: 'Переданы некорректные данные при создании пользователя.',
         });
@@ -46,7 +46,7 @@ module.exports.createUser = (req, res) => {
   User.create({ name, about, avatar })
     .then((user) => res.status(200).send({ data: user }))
     .catch((err) => {
-      if (err.name === 'ValidstionError') {
+      if (err.name === 'ValidationError') {
         return res.status(ERROR_CODE).send({
           message: 'Переданы некорректные данные при создании пользователя.',
         });
@@ -75,7 +75,7 @@ module.exports.updateUserMe = (req, res) => {
     })
     .then((user) => res.status(200).send({ data: user }))
     .catch((err) => {
-      if (err.name === 'ValidstionError') {
+      if (err.name === 'ValidationError') {
         res.status(ERROR_CODE).send({
           message: 'Переданы некорректные данные при обновлении профиля.',
         });
@@ -111,7 +111,7 @@ module.exports.updateUserAvatar = (req, res) => {
     })
     .then((data) => res.status(200).send({ data }))
     .catch((err) => {
-      if (err.name === 'ValidstionError') {
+      if (err.name === 'ValidationError') {
         res.status(ERROR_CODE).send({
           message: 'Переданы некорректные данные при обновлении профиля.',
         });
