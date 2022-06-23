@@ -63,12 +63,9 @@ module.exports.createUser = (req, res) => {
 // PATCH-запрос обновляет информацию о пользователе.
 module.exports.updateUserMe = (req, res) => {
   const { name, about } = req.body;
-  const { _id } = req.user._id;
-  // eslint-disable-next-line no-console
-  console.log(_id);
 
   User.findByIdAndUpdate(
-    _id,
+    req.user._id,
     { name, about },
     {
       new: true, // обработчик then получит на вход обновлённую запись
@@ -101,10 +98,9 @@ module.exports.updateUserMe = (req, res) => {
 // PATCH-запрос обновляет аватар пользователя.
 module.exports.updateUserAvatar = (req, res) => {
   const { avatar } = req.body;
-  const { _id } = req.user._id;
 
   User.findByIdAndUpdate(
-    _id,
+    req.user._id,
     { avatar },
     {
       new: true, // обработчик then получит на вход обновлённую запись
