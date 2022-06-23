@@ -86,25 +86,25 @@ module.exports.dislikeCard = (req, res) => {
     { $pull: { likes: { _id: req.user._id } } }, // убрать _id из массива
     { new: true },
   )
-    .orFail(() => {
-      const error = new Error('Передан несуществующий _id карточки.');
-      error.statusCode = 400;
-      throw error;
-    })
+    // .orFail(() => {
+    //   const error = new Error('Передан несуществующий _id карточки.');
+    //   error.statusCode = 404;
+    //   throw error;
+    // })
     .then((dislikes) => res.status(200).send({ dislikes }))
     .catch((err) => {
       if (err.name === 'ValidationError' || err.name === 'CastError') {
-        res.status(NOT_FOUND).send({
+        res.status(ERROR_CODE).send({
           message: 'Переданы некорректные данные для снятии лайка.',
         });
         return;
       }
-      if (err.statusCode === 400) {
-        res.status(ERROR_CODE).send({
-          message: err.message,
-        });
-        return;
-      }
+      // if (err.statusCode === 404) {
+      //   res.status(NOT_FOUND).send({
+      //     message: err.message,
+      //   });
+      //   return;
+      // }
       res.status(SERVER_ERROR).send({ message: 'Произошла ошибка' });
     });
 };
