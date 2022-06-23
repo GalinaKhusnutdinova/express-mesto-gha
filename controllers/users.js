@@ -10,11 +10,12 @@ module.exports.findUsers = (req, res) => {
     .then((users) => res.status(200).send({ data: users }))
     .catch((err) => {
       if (err.name === 'ValidstionError') {
-        return res.status(ERROR_CODE).send({
+        res.status(ERROR_CODE).send({
           message: 'Переданы некорректные данные при создании пользователя.',
         });
+        return;
       }
-      return res.status(SERVER_ERROR).send({ message: 'Ошибка по умолчанию.' });
+      res.status(SERVER_ERROR).send({ message: 'Ошибка по умолчанию.' });
     });
 };
 
@@ -43,7 +44,7 @@ module.exports.createUser = (req, res) => {
   const { name, about, avatar } = req.body;
 
   User.create({ name, about, avatar })
-    .then((user) => res.status(201).send({ data: user }))
+    .then((user) => res.status(200).send({ data: user }))
     .catch((err) => {
       if (err.name === 'ValidstionError') {
         return res.status(ERROR_CODE).send({
