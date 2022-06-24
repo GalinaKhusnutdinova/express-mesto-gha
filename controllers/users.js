@@ -1,22 +1,11 @@
 const User = require('../models/users');
-
-const ERROR_CODE = 400;
-const NOT_FOUND = 404;
-const SERVER_ERROR = 500;
+const { ERROR_CODE, NOT_FOUND, SERVER_ERROR } = require('../utils/utils');
 
 // GET-запрос возвращает всех пользователей из базы данных
 module.exports.findUsers = (req, res) => {
   User.find({})
     .then((users) => res.status(200).send({ data: users }))
-    .catch((err) => {
-      if (err.name === 'ValidationError' || err.name === 'CastError') {
-        res.status(ERROR_CODE).send({
-          message: 'Переданы некорректные данные при создании пользователя.',
-        });
-        return;
-      }
-      res.status(SERVER_ERROR).send({ message: 'Ошибка по умолчанию.' });
-    });
+    .catch(() => res.status(SERVER_ERROR).send({ message: 'Ошибка по умолчанию.' }));
 };
 
 // GET-запрос возвращает пользователя по переданному _id
@@ -28,17 +17,22 @@ module.exports.findByIdUser = (req, res) => {
       throw error;
     })
     .then((user) => res.status(200).send({ data: user }))
-    // eslint-disable-next-line consistent-return
     .catch((err) => {
+      // получили все ключи
+      const errorKeys = Object.keys(err.errors);
+      // взяли ошибку по первому ключу, и дальше уже в ней смотреть.
+      const error = err.errors[errorKeys[0]];
       if (err.name === 'ValidationError' || err.name === 'CastError') {
-        return res.status(ERROR_CODE).send({
-          message: 'Переданы некорректные данные при обновлении профиля.',
+        res.status(ERROR_CODE).send({
+          message: `Переданы некорректные данные при обновлении профиля. ${error}`,
         });
+        return;
       }
       if (err.statusCode === 404) {
-        return res.status(NOT_FOUND).send({
+        res.status(NOT_FOUND).send({
           message: err.message,
         });
+        return;
       }
       res.status(SERVER_ERROR).send({ message: 'Ошибка по умолчанию.' });
     });
@@ -51,9 +45,13 @@ module.exports.createUser = (req, res) => {
   User.create({ name, about, avatar })
     .then((user) => res.status(200).send({ data: user }))
     .catch((err) => {
+      // получили все ключи
+      const errorKeys = Object.keys(err.errors);
+      // взяли ошибку по первому ключу, и дальше уже в ней смотреть.
+      const error = err.errors[errorKeys[0]];
       if (err.name === 'ValidationError' || err.name === 'CastError') {
         return res.status(ERROR_CODE).send({
-          message: 'Переданы некорректные данные при создании пользователя.',
+          message: `Переданы некорректные данные при создании пользователя, ${error}.`,
         });
       }
       return res.status(SERVER_ERROR).send({ message: 'Ошибка по умолчанию.' });
@@ -79,9 +77,13 @@ module.exports.updateUserMe = (req, res) => {
     })
     .then((user) => res.status(200).send({ data: user }))
     .catch((err) => {
+      // получили все ключи
+      const errorKeys = Object.keys(err.errors);
+      // взяли ошибку по первому ключу, и дальше уже в ней смотреть.
+      const error = err.errors[errorKeys[0]];
       if (err.name === 'ValidationError' || err.name === 'CastError') {
         res.status(ERROR_CODE).send({
-          message: 'Переданы некорректные данные при обновлении профиля.',
+          message: `Переданы некорректные данные при обновлении профиля. ${error}.`,
         });
         return;
       }
@@ -114,9 +116,13 @@ module.exports.updateUserAvatar = (req, res) => {
     })
     .then((data) => res.status(200).send({ data }))
     .catch((err) => {
+      // получили все ключи
+      const errorKeys = Object.keys(err.errors);
+      // взяли ошибку по первому ключу, и дальше уже в ней смотреть.
+      const error = err.errors[errorKeys[0]];
       if (err.name === 'ValidationError' || err.name === 'CastError') {
         res.status(ERROR_CODE).send({
-          message: 'Переданы некорректные данные при обновлении профиля.',
+          message: `Переданы некорректные данные при обновлении профиля. ${error}`,
         });
         return;
       }

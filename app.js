@@ -1,14 +1,10 @@
 const express = require('express');
-
 const mongoose = require('mongoose');
-
-// const path = require('path');
-
 const bodyParser = require('body-parser');
-
-const app = express();
 const usersPouter = require('./routes/users');
 const cardPouter = require('./routes/card');
+
+const app = express();
 
 // Слушаем 3000 порт
 const { PORT = 3000 } = process.env;

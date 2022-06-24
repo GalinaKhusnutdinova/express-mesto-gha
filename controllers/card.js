@@ -1,21 +1,11 @@
 const Card = require('../models/card');
-
-const ERROR_CODE = 400;
-const NOT_FOUND = 404;
-const SERVER_ERROR = 500;
+const { ERROR_CODE, NOT_FOUND, SERVER_ERROR } = require('../utils/utils');
 
 // GET-запрос возвращает все карточки из базы данных.
 module.exports.findCards = (req, res) => {
   Card.find({})
     .then((cards) => res.status(200).send({ data: cards }))
-    .catch((err) => {
-      if (err.name === 'ValidationError' || err.name === 'CastError') {
-        return res.status(ERROR_CODE).send({
-          message: 'Переданы некорректные данные при создание карточки.',
-        });
-      }
-      return res.status(SERVER_ERROR).send({ message: 'Ошибка по умолчанию.' });
-    });
+    .catch(() => res.status(SERVER_ERROR).send({ message: 'Ошибка по умолчанию.' }));
 };
 
 // POST-запрос создает новую карточку по переданным параметрам.
@@ -26,9 +16,13 @@ module.exports.createCard = (req, res) => {
   Card.create({ name, link, owner })
     .then((card) => res.status(201).send({ data: card }))
     .catch((err) => {
+      // получили все ключи
+      const errorKeys = Object.keys(err.errors);
+      // взяли ошибку по первому ключу, и дальше уже в ней смотреть.
+      const error = err.errors[errorKeys[0]];
       if (err.name === 'ValidationError' || err.name === 'CastError') {
         return res.status(ERROR_CODE).send({
-          message: 'Переданы некорректные данные при создание карточки.',
+          message: `Переданы некорректные данные при создание карточки. ${error}`,
         });
       }
       return res.status(SERVER_ERROR).send({ message: 'Ошибка по умолчанию.' });
@@ -45,9 +39,13 @@ module.exports.deleteCard = (req, res) => {
     })
     .then((user) => res.status(200).send({ data: user }))
     .catch((err) => {
+      // получили все ключи
+      const errorKeys = Object.keys(err.errors);
+      // взяли ошибку по первому ключу, и дальше уже в ней смотреть.
+      const error = err.errors[errorKeys[0]];
       if (err.name === 'ValidationError' || err.name === 'CastError') {
         res.status(ERROR_CODE).send({
-          message: 'Карточка с указанным _id не найдена..',
+          message: `Карточка с указанным _id не найдена. ${error}`,
         });
         return;
       }
@@ -75,9 +73,13 @@ module.exports.likeCard = (req, res) => {
     })
     .then((likes) => res.status(200).send({ likes }))
     .catch((err) => {
+      // получили все ключи
+      const errorKeys = Object.keys(err.errors);
+      // взяли ошибку по первому ключу, и дальше уже в ней смотреть.
+      const error = err.errors[errorKeys[0]];
       if (err.name === 'ValidationError' || err.name === 'CastError') {
         res.status(ERROR_CODE).send({
-          message: 'Переданы некорректные данные для постановки лайка.',
+          message: `Переданы некорректные данные для постановки лайка. ${error}`,
         });
         return;
       }
@@ -105,9 +107,13 @@ module.exports.dislikeCard = (req, res) => {
     })
     .then((dislikes) => res.status(200).send({ dislikes }))
     .catch((err) => {
+      // получили все ключи
+      const errorKeys = Object.keys(err.errors);
+      // взяли ошибку по первому ключу, и дальше уже в ней смотреть.
+      const error = err.errors[errorKeys[0]];
       if (err.name === 'ValidationError' || err.name === 'CastError') {
         res.status(ERROR_CODE).send({
-          message: 'Переданы некорректные данные для снятии лайка.',
+          message: `Переданы некорректные данные для снятии лайка. ${error}`,
         });
         return;
       }
