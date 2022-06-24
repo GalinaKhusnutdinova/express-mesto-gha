@@ -16,14 +16,16 @@ module.exports.createCard = (req, res) => {
   Card.create({ name, link, owner })
     .then((card) => res.status(201).send({ data: card }))
     .catch((err) => {
-      // получили все ключи
-      const errorKeys = Object.keys(err.errors);
-      // взяли ошибку по первому ключу, и дальше уже в ней смотреть.
-      const error = err.errors[errorKeys[0]];
-      if (err.name === 'ValidationError' || err.name === 'CastError') {
-        return res.status(ERROR_CODE).send({
-          message: `Переданы некорректные данные при создание карточки. ${error}`,
-        });
+      if (err.errors) {
+        // получили все ключи
+        const errorKeys = Object.keys(err.errors);
+        // взяли ошибку по первому ключу, и дальше уже в ней смотреть.
+        const error = err.errors[errorKeys[0]];
+        if (err.name === 'ValidationError' || err.name === 'CastError') {
+          return res.status(ERROR_CODE).send({
+            message: `Переданы некорректные данные при создание карточки. ${error}`,
+          });
+        }
       }
       return res.status(SERVER_ERROR).send({ message: 'Ошибка по умолчанию.' });
     });

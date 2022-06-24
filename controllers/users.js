@@ -18,15 +18,17 @@ module.exports.findByIdUser = (req, res) => {
     })
     .then((user) => res.status(200).send({ data: user }))
     .catch((err) => {
-      // получили все ключи
-      const errorKeys = Object.keys(err.errors);
-      // взяли ошибку по первому ключу, и дальше уже в ней смотреть.
-      const error = err.errors[errorKeys[0]];
-      if (err.name === 'ValidationError' || err.name === 'CastError') {
-        res.status(ERROR_CODE).send({
-          message: `Переданы некорректные данные при обновлении профиля. ${error}`,
-        });
-        return;
+      if (err.errors) {
+        // получили все ключи
+        const errorKeys = Object.keys(err.errors);
+        // взяли ошибку по первому ключу, и дальше уже в ней смотреть.
+        const error = err.errors[errorKeys[0]];
+        if (err.name === 'ValidationError' || err.name === 'CastError') {
+          res.status(ERROR_CODE).send({
+            message: `Переданы некорректные данные при создание карточки. ${error}`,
+          });
+          return;
+        }
       }
       if (err.statusCode === 404) {
         res.status(NOT_FOUND).send({
