@@ -27,6 +27,11 @@ module.exports.createCard = (req, res) => {
           });
         }
       }
+      if (err.name === 'CastError') {
+        return res.status(ERROR_CODE).send({
+          message: 'Переданы некорректные данные при создание карточки.',
+        });
+      }
       return res.status(SERVER_ERROR).send({ message: 'Ошибка по умолчанию.' });
     });
 };
@@ -41,13 +46,21 @@ module.exports.deleteCard = (req, res) => {
     })
     .then((user) => res.status(200).send({ data: user }))
     .catch((err) => {
-      // получили все ключи
-      const errorKeys = Object.keys(err.errors);
-      // взяли ошибку по первому ключу, и дальше уже в ней смотреть.
-      const error = err.errors[errorKeys[0]];
-      if (err.name === 'ValidationError' || err.name === 'CastError') {
+      if (err.errors) {
+        // получили все ключи
+        const errorKeys = Object.keys(err.errors);
+        // взяли ошибку по первому ключу, и дальше уже в ней смотреть.
+        const error = err.errors[errorKeys[0]];
+        if (err.name === 'ValidationError') {
+          res.status(ERROR_CODE).send({
+            message: `Карточка с указанным _id не найдена. ${error}`,
+          });
+          return;
+        }
+      }
+      if (err.name === 'CastError') {
         res.status(ERROR_CODE).send({
-          message: `Карточка с указанным _id не найдена. ${error}`,
+          message: 'Переданы некорректные данные при создание карточки.',
         });
         return;
       }
@@ -75,13 +88,21 @@ module.exports.likeCard = (req, res) => {
     })
     .then((likes) => res.status(200).send({ likes }))
     .catch((err) => {
-      // получили все ключи
-      const errorKeys = Object.keys(err.errors);
-      // взяли ошибку по первому ключу, и дальше уже в ней смотреть.
-      const error = err.errors[errorKeys[0]];
-      if (err.name === 'ValidationError' || err.name === 'CastError') {
+      if (err.errors) {
+        // получили все ключи
+        const errorKeys = Object.keys(err.errors);
+        // взяли ошибку по первому ключу, и дальше уже в ней смотреть.
+        const error = err.errors[errorKeys[0]];
+        if (err.name === 'ValidationError') {
+          res.status(ERROR_CODE).send({
+            message: `Переданы некорректные данные для постановки лайка. ${error}`,
+          });
+          return;
+        }
+      }
+      if (err.name === 'CastError') {
         res.status(ERROR_CODE).send({
-          message: `Переданы некорректные данные для постановки лайка. ${error}`,
+          message: 'Переданы некорректные данные для постановки лайка.',
         });
         return;
       }
@@ -109,13 +130,21 @@ module.exports.dislikeCard = (req, res) => {
     })
     .then((dislikes) => res.status(200).send({ dislikes }))
     .catch((err) => {
-      // получили все ключи
-      const errorKeys = Object.keys(err.errors);
-      // взяли ошибку по первому ключу, и дальше уже в ней смотреть.
-      const error = err.errors[errorKeys[0]];
-      if (err.name === 'ValidationError' || err.name === 'CastError') {
+      if (err.errors) {
+        // получили все ключи
+        const errorKeys = Object.keys(err.errors);
+        // взяли ошибку по первому ключу, и дальше уже в ней смотреть.
+        const error = err.errors[errorKeys[0]];
+        if (err.name === 'ValidationError') {
+          res.status(ERROR_CODE).send({
+            message: `Переданы некорректные данные для снятии лайка. ${error}`,
+          });
+          return;
+        }
+      }
+      if (err.name === 'CastError') {
         res.status(ERROR_CODE).send({
-          message: `Переданы некорректные данные для снятии лайка. ${error}`,
+          message: 'Переданы некорректные данные для снятии лайка.',
         });
         return;
       }
