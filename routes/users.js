@@ -1,22 +1,55 @@
 const router = require('express').Router();
+const { celebrate, Joi } = require('celebrate');
 
 const {
   findUsers,
   findByIdUser,
   updateUserMe,
   updateUserAvatar,
+  findOnedUserMe,
 } = require('../controllers/users');
 
 // сработает при GET-запросе на URL /users
 router.get('/', findUsers);
 
+// сработает при GET-запросе на URL /users/me
+router.get('/me', celebrate({
+  // валидируем параметры
+  body: Joi.object().keys({
+    _id: Joi.string().required().length(24),
+  }),
+  headers: Joi.object().keys({
+    // валидируем заголовки
+    authorization: Joi.string(),
+  }).unknown(true),
+}), findOnedUserMe);
+
 // сработает при GET-запросе на URL /users/:userId
-router.get('/:userId', findByIdUser);
+router.get('/:userId', celebrate({
+  // валидируем параметры
+  params: Joi.object().keys({
+    userId: Joi.string().alphanum().length(24),
+  }),
+  headers: Joi.object().keys({
+    // валидируем заголовки
+    authorization: Joi.string(),
+  }).unknown(true),
+}), findByIdUser);
 
 // сработает при PATCH-запросе на URL /users/me
-router.patch('/me', updateUserMe);
+router.patch('/me', celebrate({
+  body: Joi.object().keys({
+    name: Joi.string().required().min(2).max(30),
+    about: Joi.string().required().min(2).max(30),
+  }),
+}), updateUserMe);
 
 // сработает при PATCH-запросе на URL /users/me/avatar
-router.patch('/me/avatar', updateUserAvatar);
+router.patch('/me/avatar', celebrate({
+  body: Joi.object().keys({
+    email: Joi.string().required().email(),
+    password: Joi.string().required().min(8),
+  }),
+}), updateUserAvatar);
 
 module.exports = router;

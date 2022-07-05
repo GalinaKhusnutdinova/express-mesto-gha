@@ -1,20 +1,34 @@
 const Card = require('../models/card');
-const { ERROR_CODE, NOT_FOUND, SERVER_ERROR } = require('../utils/utils');
+
+// error
+const ValidationError = require('../errors/ValidationError'); // 400
+const Forbidden = require('../errors/Forbidden'); // 403
+const NotFound = require('../errors/NotFound'); // 404
+// const Conflict = require('../errors/Conflict'); // 409
+const InternalServerError = require('../errors/InternalServerError'); // 500
 
 // GET-запрос возвращает все карточки из базы данных.
-module.exports.findCards = (req, res) => {
+module.exports.findCards = (req, res, next) => {
   Card.find({})
     .then((cards) => res.status(200).send({ data: cards }))
-    .catch(() => res.status(SERVER_ERROR).send({ message: 'Ошибка по умолчанию.' }));
+    .catch(() => next(new InternalServerError('Ошибка по умолчанию.')))
+    .catch(next);
 };
 
 // POST-запрос создает новую карточку по переданным параметрам.
-module.exports.createCard = (req, res) => {
+module.exports.createCard = (req, res, next) => {
   const { name, link } = req.body;
-  const owner = req.user._id;
+  const owner = req.user.id;
 
   Card.create({ name, link, owner })
-    .then((card) => res.status(201).send({ data: card }))
+    .then((card) => res.status(201).send({
+      name: card.name,
+      link: card.link,
+      owner: card.owner,
+      likes: card.likes,
+      _id: card._id,
+      createdAt: card.createdAt,
+    }))
     .catch((err) => {
       if (err.errors) {
         // получили все ключи
@@ -22,29 +36,36 @@ module.exports.createCard = (req, res) => {
         // взяли ошибку по первому ключу, и дальше уже в ней смотреть.
         const error = err.errors[errorKeys[0]];
         if (err.name === 'ValidationError' || err.name === 'CastError') {
-          return res.status(ERROR_CODE).send({
-            message: `Переданы некорректные данные при создание карточки. ${error}`,
-          });
+          next(new ValidationError(`Переданы некорректные данные при создание карточки. ${error}`));
+          return;
         }
       }
       if (err.name === 'CastError') {
-        return res.status(ERROR_CODE).send({
-          message: 'Переданы некорректные данные при создание карточки.',
-        });
+        next(new ValidationError('Переданы некорректные данные при создании пользователя.'));
+        return;
       }
-      return res.status(SERVER_ERROR).send({ message: 'Ошибка по умолчанию.' });
-    });
+
+      next(new InternalServerError('Ошибка по умолчанию.'));
+    })
+    .catch(next);
 };
 
 // DELETE-запрос удаляет карточку по _id.
-module.exports.deleteCard = (req, res) => {
-  Card.findByIdAndRemove(req.params.cardId)
+module.exports.deleteCard = (req, res, next) => {
+  Card.findById(req.params.cardId)
     .orFail(() => {
-      const error = new Error('Передан несуществующий _id карточки.');
-      error.statusCode = 404;
-      throw error;
+      next(new NotFound('Передан несуществующий _id карточки.'));
     })
-    .then((user) => res.status(200).send({ data: user }))
+    .then((card) => {
+      const owner = card.owner.toString();
+      const userId = req.user.id.toString();
+
+      if (userId !== owner) {
+        throw new Forbidden('Вы не можете удалять чужие каточки');
+      }
+      Card.findByIdAndRemove(userId)
+        .then(() => res.status(200).send('Карточка успешно удалена'));
+    })
     .catch((err) => {
       if (err.errors) {
         // получили все ключи
@@ -52,39 +73,32 @@ module.exports.deleteCard = (req, res) => {
         // взяли ошибку по первому ключу, и дальше уже в ней смотреть.
         const error = err.errors[errorKeys[0]];
         if (err.name === 'ValidationError') {
-          res.status(ERROR_CODE).send({
-            message: `Карточка с указанным _id не найдена. ${error}`,
-          });
+          next(new ValidationError(`Карточка с указанным _id не найдена. ${error}`));
           return;
         }
       }
       if (err.name === 'CastError') {
-        res.status(ERROR_CODE).send({
-          message: 'Переданы некорректные данные при создание карточки.',
-        });
+        next(new ValidationError('Переданы некорректные данные при создании пользователя.'));
         return;
       }
       if (err.statusCode === 404) {
-        res.status(NOT_FOUND).send({
-          message: err.message,
-        });
+        next(new NotFound(err.message));
         return;
       }
-      res.status(SERVER_ERROR).send({ message: 'Ошибка по умолчанию.' });
-    });
+      next(new InternalServerError('Ошибка по умолчанию.'));
+    })
+    .catch(next);
 };
 
 // PUT-запрос добавляет лайк карточке.
-module.exports.likeCard = (req, res) => {
+module.exports.likeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $addToSet: { likes: { _id: req.user._id } } }, // добавить _id в массив, если его там нет
     { new: true },
   )
     .orFail(() => {
-      const error = new Error('Передан несуществующий _id карточки.');
-      error.statusCode = 404;
-      throw error;
+      next(new NotFound('Передан несуществующий _id карточки.'));
     })
     .then((likes) => res.status(200).send({ likes }))
     .catch((err) => {
@@ -94,39 +108,32 @@ module.exports.likeCard = (req, res) => {
         // взяли ошибку по первому ключу, и дальше уже в ней смотреть.
         const error = err.errors[errorKeys[0]];
         if (err.name === 'ValidationError') {
-          res.status(ERROR_CODE).send({
-            message: `Переданы некорректные данные для постановки лайка. ${error}`,
-          });
+          next(new ValidationError(`Переданы некорректные данные для постановки лайка. ${error}`));
           return;
         }
       }
       if (err.name === 'CastError') {
-        res.status(ERROR_CODE).send({
-          message: 'Переданы некорректные данные для постановки лайка.',
-        });
+        next(new ValidationError('Переданы некорректные данные для постановки лайка.'));
         return;
       }
       if (err.statusCode === 404) {
-        res.status(NOT_FOUND).send({
-          message: err.message,
-        });
+        next(new NotFound(err.message));
         return;
       }
-      res.status(SERVER_ERROR).send({ message: 'Произошла ошибка' });
-    });
+      next(new InternalServerError('Ошибка по умолчанию.'));
+    })
+    .catch(next);
 };
 
 // DELETE-запрос удаляет лайк с карточки.
-module.exports.dislikeCard = (req, res) => {
+module.exports.dislikeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $pull: { likes: { _id: req.user._id } } }, // убрать _id из массива
     { new: true },
   )
     .orFail(() => {
-      const error = new Error('Передан несуществующий _id карточки.');
-      error.statusCode = 404;
-      throw error;
+      next(new NotFound('Передан несуществующий _id карточки.'));
     })
     .then((dislikes) => res.status(200).send({ dislikes }))
     .catch((err) => {
@@ -136,24 +143,19 @@ module.exports.dislikeCard = (req, res) => {
         // взяли ошибку по первому ключу, и дальше уже в ней смотреть.
         const error = err.errors[errorKeys[0]];
         if (err.name === 'ValidationError') {
-          res.status(ERROR_CODE).send({
-            message: `Переданы некорректные данные для снятии лайка. ${error}`,
-          });
+          next(new ValidationError(`Переданы некорректные данные для снятии лайка. ${error}`));
           return;
         }
       }
       if (err.name === 'CastError') {
-        res.status(ERROR_CODE).send({
-          message: 'Переданы некорректные данные для снятии лайка.',
-        });
+        next(new ValidationError('Переданы некорректные данные для снятии лайка.'));
         return;
       }
       if (err.statusCode === 404) {
-        res.status(NOT_FOUND).send({
-          message: err.message,
-        });
+        next(new NotFound(err.message));
         return;
       }
-      res.status(SERVER_ERROR).send({ message: 'Произошла ошибка' });
-    });
+      next(new InternalServerError('Ошибка по умолчанию.'));
+    })
+    .catch(next);
 };

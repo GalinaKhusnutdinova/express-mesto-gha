@@ -1,31 +1,30 @@
 const bcrypt = require('bcrypt');
-// const jwt = require('jsonwebtoken');
 const User = require('../models/users');
-const { ERROR_CODE, NOT_FOUND, SERVER_ERROR, MONGO_DUPLICATE_ERROR_CODE} = require('../utils/utils');
+const {
+  MONGO_DUPLICATE_ERROR_CODE,
+} = require('../utils/utils');
 const { generateToken } = require('../utils/jwt');
 
 // error
 const ValidationError = require('../errors/ValidationError'); // 400
 const Unauthorized = require('../errors/Unauthorized'); // 401
-const Forbidden = require('../errors/Forbidden'); // 403
 const NotFound = require('../errors/NotFound'); // 404
 const Conflict = require('../errors/Conflict'); // 409
 const InternalServerError = require('../errors/InternalServerError'); // 500
 
 // GET-запрос возвращает всех пользователей из базы данных
-module.exports.findUsers = (req, res) => {
+module.exports.findUsers = (req, res, next) => {
   User.find({})
     .then((users) => res.status(200).send({ data: users }))
-    .catch(() => res.status(SERVER_ERROR).send({ message: 'Ошибка по умолчанию.' }));
+    .catch(() => next(new InternalServerError('Ошибка по умолчанию.')))
+    .catch(next);
 };
 
 // GET-запрос возвращает пользователя по переданному _id
-module.exports.findByIdUser = (req, res) => {
+module.exports.findByIdUser = (req, res, next) => {
   User.findById(req.params.userId)
     .orFail(() => {
-      const error = new Error('Пользователь по указанному _id не найден.');
-      error.statusCode = 404;
-      throw error;
+      next(new NotFound('Пользователь по указанному _id не найден'));
     })
     .then((user) => res.status(200).send({ data: user }))
     .catch((err) => {
@@ -35,26 +34,61 @@ module.exports.findByIdUser = (req, res) => {
         // взяли ошибку по первому ключу, и дальше уже в ней смотреть.
         const error = err.errors[errorKeys[0]];
         if (err.name === 'ValidationError') {
-          res.status(ERROR_CODE).send({
-            message: `Переданы некорректные данные при создание пользователя. ${error}`,
-          });
+          next(new ValidationError(`Переданы некорректные данные при создание пользователя. ${error}`));
           return;
         }
       }
       if (err.name === 'CastError') {
-        res.status(ERROR_CODE).send({
-          message: 'Переданы некорректные данные при создание пользователя.',
-        });
+        next(new ValidationError('Переданы некорректные данные при создание пользователя.'));
         return;
       }
       if (err.statusCode === 404) {
-        res.status(NOT_FOUND).send({
-          message: err.message,
-        });
+        next(new NotFound(err.message));
         return;
       }
-      res.status(SERVER_ERROR).send({ message: 'Ошибка по умолчанию.' });
-    });
+      next(new InternalServerError('Ошибка по умолчанию.'));
+    })
+    .catch(next);
+};
+
+// GET-запрос возвращает пользователя
+module.exports.findOnedUserMe = (req, res, next) => {
+  const { _id } = req.body;
+  User.findOne({ _id })
+    .then((user) => {
+      if (!user) {
+        next(new NotFound('Пользователь по указанному _id не найден'));
+        return;
+      }
+      res.status(200).send({
+        name: user.name,
+        aboute: user.about,
+        avatar: user.avatar,
+        email: user.email,
+      });
+    })
+    .catch((err) => {
+      if (err.errors) {
+        // получили все ключи
+        const errorKeys = Object.keys(err.errors);
+        // взяли ошибку по первому ключу, и дальше уже в ней смотреть.
+        const error = err.errors[errorKeys[0]];
+        if (err.name === 'ValidationError') {
+          next(new ValidationError(`Переданы некорректные данные при создание пользователя. ${error}`));
+          return;
+        }
+      }
+      if (err.name === 'CastError') {
+        next(new ValidationError('Переданы некорректные данные при создание пользователя.'));
+        return;
+      }
+      if (err.statusCode === 404) {
+        next(new NotFound(err.message));
+        return;
+      }
+      next(new InternalServerError('Ошибка по умолчанию.'));
+    })
+    .catch(next);
 };
 
 // POST-запрос создаёт пользователя с переданными в теле запроса name, about, avatar, email,
@@ -79,6 +113,7 @@ module.exports.createUser = (req, res, next) => {
       aboute: user.about,
       avatar: user.avatar,
       email: user.email,
+      _id: user._id,
     }))
     .catch((err) => {
       if (err.code === MONGO_DUPLICATE_ERROR_CODE) {
@@ -90,23 +125,23 @@ module.exports.createUser = (req, res, next) => {
         // взяли ошибку по первому ключу, и дальше уже в ней смотреть.
         const error = err.errors[errorKeys[0]];
         if (err.name === 'ValidationError' || err.name === 'CastError') {
-          return res.status(ERROR_CODE).send({
-            message: `Переданы некорректные данные при создании пользователя, ${error}.`,
-          });
+          next(new ValidationError(`Переданы некорректные данные при создание пользователя. ${error}`));
+          return;
         }
       }
 
       if (err.name === 'CastError') {
         next(new ValidationError('Переданы некорректные данные при создании пользователя.'));
+        return;
       }
 
-      return res.status(SERVER_ERROR).send({ message: 'Ошибка по умолчанию.' });
+      next(new InternalServerError('Ошибка по умолчанию.'));
     })
     .catch(next);
 };
 
 // PATCH-запрос обновляет информацию о пользователе.
-module.exports.updateUserMe = (req, res) => {
+module.exports.updateUserMe = (req, res, next) => {
   const { name, about } = req.body;
 
   User.findByIdAndUpdate(
@@ -118,9 +153,7 @@ module.exports.updateUserMe = (req, res) => {
     },
   )
     .orFail(() => {
-      const error = new Error('Пользователь с указанным _id не найден. ');
-      error.statusCode = 404;
-      throw error;
+      next(new NotFound('Пользователь с указанным _id не найден.'));
     })
     .then((user) => res.status(200).send({ data: user }))
     .catch((err) => {
@@ -130,30 +163,25 @@ module.exports.updateUserMe = (req, res) => {
         // взяли ошибку по первому ключу, и дальше уже в ней смотреть.
         const error = err.errors[errorKeys[0]];
         if (err.name === 'ValidationError' || err.name === 'CastError') {
-          res.status(ERROR_CODE).send({
-            message: `Переданы некорректные данные при обновлении профиля. ${error}.`,
-          });
+          next(new ValidationError(`Переданы некорректные данные при обновлении профиля. ${error}`));
           return;
         }
       }
       if (err.name === 'CastError') {
-        res.status(ERROR_CODE).send({
-          message: 'Переданы некорректные данные при обновлении профиля.',
-        });
+        next(new ValidationError('Переданы некорректные данные при обновлении профиля.'));
         return;
       }
       if (err.statusCode === 404) {
-        res.status(NOT_FOUND).send({
-          message: err.message,
-        });
+        next(new NotFound(err.message));
         return;
       }
-      res.status(SERVER_ERROR).send({ message: 'Ошибка по умолчанию.' });
-    });
+      next(new InternalServerError('Ошибка по умолчанию.'));
+    })
+    .catch(next);
 };
 
 // PATCH-запрос обновляет аватар пользователя.
-module.exports.updateUserAvatar = (req, res) => {
+module.exports.updateUserAvatar = (req, res, next) => {
   const { avatar } = req.body;
 
   User.findByIdAndUpdate(
@@ -175,41 +203,34 @@ module.exports.updateUserAvatar = (req, res) => {
         // взяли ошибку по первому ключу, и дальше уже в ней смотреть.
         const error = err.errors[errorKeys[0]];
         if (err.name === 'ValidationError' || err.name === 'CastError') {
-          res.status(ERROR_CODE).send({
-            message: `Переданы некорректные данные при обновлении профиля. ${error}`,
-          });
+          next(new ValidationError(`Переданы некорректные данные при обновлении профиля. ${error}`));
           return;
         }
       }
       if (err.name === 'CastError') {
-        res.status(ERROR_CODE).send({
-          message: 'Переданы некорректные данные при обновлении профиля.',
-        });
+        next(new ValidationError('Переданы некорректные данные при обновлении профиля.'));
         return;
       }
       if (err.statusCode === 404) {
-        res.status(NOT_FOUND).send({
-          message: err.message,
-        });
+        next(new NotFound(err.message));
         return;
       }
-      res.status(SERVER_ERROR).send({ message: 'Ошибка по умолчанию.' });
-    });
+      next(new InternalServerError('Ошибка по умолчанию.'));
+    })
+    .catch(next);
 };
 
 module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
-    throw new Unauthorized('Не передан емейл или пароль');
+    next(new Unauthorized('Не передан емейл или пароль'));
+    return;
   }
 
-  User.findOne({ email })
+  User.findOne({ email }).select('+password')
     .then((foundUser) => {
       if (!foundUser) {
-        // const err = new Error('Неправильный емейл или пароль');
-        // err.statusCode = 401;
-        // throw err;
         throw new Unauthorized('Неправильный емейл или пароль');
       }
 
@@ -220,9 +241,6 @@ module.exports.login = (req, res, next) => {
     })
     .then(([user, isPasswordCorrect]) => {
       if (!isPasswordCorrect) {
-        // const err = new Error('Неправильный емейл или пароль');
-        // err.statusCode = 401;
-        // throw err;
         throw new Unauthorized('Неправильный емейл или пароль');
       }
 
