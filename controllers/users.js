@@ -1,5 +1,16 @@
+const bcrypt = require('bcrypt');
+// const jwt = require('jsonwebtoken');
 const User = require('../models/users');
-const { ERROR_CODE, NOT_FOUND, SERVER_ERROR } = require('../utils/utils');
+const { ERROR_CODE, NOT_FOUND, SERVER_ERROR, MONGO_DUPLICATE_ERROR_CODE} = require('../utils/utils');
+const { generateToken } = require('../utils/jwt');
+
+// error
+const ValidationError = require('../errors/ValidationError'); // 400
+const Unauthorized = require('../errors/Unauthorized'); // 401
+const Forbidden = require('../errors/Forbidden'); // 403
+const NotFound = require('../errors/NotFound'); // 404
+const Conflict = require('../errors/Conflict'); // 409
+const InternalServerError = require('../errors/InternalServerError'); // 500
 
 // GET-запрос возвращает всех пользователей из базы данных
 module.exports.findUsers = (req, res) => {
@@ -46,13 +57,34 @@ module.exports.findByIdUser = (req, res) => {
     });
 };
 
-// POST-запрос создаёт пользователя с переданными в теле запроса name, about, avatar
-module.exports.createUser = (req, res) => {
-  const { name, about, avatar } = req.body;
+// POST-запрос создаёт пользователя с переданными в теле запроса name, about, avatar, email,
+// password
+module.exports.createUser = (req, res, next) => {
+  const {
+    name, about, avatar, email, password,
+  } = req.body;
 
-  User.create({ name, about, avatar })
-    .then((user) => res.status(200).send({ data: user }))
+  if (!email || !password) {
+    throw new Unauthorized('Не передан емейл или пароль');
+  }
+
+  bcrypt
+    .hash(password, 10)
+    .then((hash) => User.create({
+      name, about, avatar, email, password: hash,
+    }))
+    .then((user) => res.status(201).send({
+      message: 'Пользователь создан',
+      name: user.name,
+      aboute: user.about,
+      avatar: user.avatar,
+      email: user.email,
+    }))
     .catch((err) => {
+      if (err.code === MONGO_DUPLICATE_ERROR_CODE) {
+        next(new Conflict('Пользователь с таким email уже существует'));
+      }
+
       if (err.errors) { // получили все ключи
         const errorKeys = Object.keys(err.errors);
         // взяли ошибку по первому ключу, и дальше уже в ней смотреть.
@@ -63,13 +95,14 @@ module.exports.createUser = (req, res) => {
           });
         }
       }
+
       if (err.name === 'CastError') {
-        return res.status(ERROR_CODE).send({
-          message: 'Переданы некорректные данные при создании пользователя.',
-        });
+        next(new ValidationError('Переданы некорректные данные при создании пользователя.'));
       }
+
       return res.status(SERVER_ERROR).send({ message: 'Ошибка по умолчанию.' });
-    });
+    })
+    .catch(next);
 };
 
 // PATCH-запрос обновляет информацию о пользователе.
@@ -132,9 +165,7 @@ module.exports.updateUserAvatar = (req, res) => {
     },
   )
     .orFail(() => {
-      const error = new Error('Пользователь с указанным _id не найден. ');
-      error.statusCode = 404;
-      throw error;
+      throw new NotFound('Не передан емейл или пароль');
     })
     .then((data) => res.status(200).send({ data }))
     .catch((err) => {
@@ -164,4 +195,41 @@ module.exports.updateUserAvatar = (req, res) => {
       }
       res.status(SERVER_ERROR).send({ message: 'Ошибка по умолчанию.' });
     });
+};
+
+module.exports.login = (req, res, next) => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    throw new Unauthorized('Не передан емейл или пароль');
+  }
+
+  User.findOne({ email })
+    .then((foundUser) => {
+      if (!foundUser) {
+        // const err = new Error('Неправильный емейл или пароль');
+        // err.statusCode = 401;
+        // throw err;
+        throw new Unauthorized('Неправильный емейл или пароль');
+      }
+
+      return Promise.all([
+        foundUser,
+        bcrypt.compare(password, foundUser.password),
+      ]);
+    })
+    .then(([user, isPasswordCorrect]) => {
+      if (!isPasswordCorrect) {
+        // const err = new Error('Неправильный емейл или пароль');
+        // err.statusCode = 401;
+        // throw err;
+        throw new Unauthorized('Неправильный емейл или пароль');
+      }
+
+      return generateToken({ _id: user._id });
+    })
+    .then((token) => {
+      res.send({ token });
+    })
+    .catch(next);
 };

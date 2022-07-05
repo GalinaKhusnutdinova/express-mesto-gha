@@ -1,5 +1,11 @@
 const ERROR_CODE = 400;
 const NOT_FOUND = 404;
 const SERVER_ERROR = 500;
+const MONGO_DUPLICATE_ERROR_CODE = 11000;
 
-module.exports = { ERROR_CODE, NOT_FOUND, SERVER_ERROR };
+module.exports = {
+  ERROR_CODE,
+  NOT_FOUND,
+  SERVER_ERROR,
+  MONGO_DUPLICATE_ERROR_CODE,
+};
