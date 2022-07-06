@@ -1,11 +1,8 @@
 const Card = require('../models/card');
-
 // error
 const ValidationError = require('../errors/ValidationError'); // 400
-// const Unauthorized = require('../errors/Unauthorized'); // 401
 const Forbidden = require('../errors/Forbidden'); // 403
 const NotFound = require('../errors/NotFound'); // 404
-// const Conflict = require('../errors/Conflict'); // 409
 const InternalServerError = require('../errors/InternalServerError'); // 500
 
 // GET-запрос возвращает все карточки из базы данных.

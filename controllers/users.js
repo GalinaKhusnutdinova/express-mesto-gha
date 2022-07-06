@@ -13,16 +13,18 @@ const InternalServerError = require('../errors/InternalServerError'); // 500
 // GET-запрос возвращает всех пользователей из базы данных
 module.exports.findUsers = (req, res, next) => {
   User.find({})
-    .then((users) => res.send({ data: users }))
-    // .catch(() => next(new InternalServerError('Ошибка по умолчанию.')))
+    .then((users) => res.status(200).send({ data: users }))
+    .catch(() => next(new InternalServerError('Ошибка по умолчанию.')))
     .catch(next);
 };
 
 // GET-запрос возвращает пользователя по переданному _id
 module.exports.findByIdUser = (req, res, next) => {
   User.findById(req.params.userId)
-    .orFail(() => next(new NotFound('Пользователь по указанному _id не найден')))
-    .then((user) => res.send({ data: user }))
+    .orFail(() => {
+      next(new NotFound('Пользователь по указанному _id не найден'));
+    })
+    .then((user) => res.status(200).send({ data: user }))
     .catch((err) => {
       if (err.errors) {
         // получили все ключи
@@ -55,7 +57,7 @@ module.exports.findOnedUserMe = (req, res, next) => {
         next(new NotFound('Пользователь по указанному _id не найден'));
         return;
       }
-      res.send({ data: user });
+      res.status(200).send({ data: user });
     })
     .catch((err) => {
       if (err.errors) {
@@ -107,7 +109,6 @@ module.exports.createUser = (req, res, next) => {
     .catch((err) => {
       if (err.code === MONGO_DUPLICATE_ERROR_CODE) {
         next(new Conflict('Пользователь с таким email уже существует'));
-        return;
       }
 
       if (err.errors) { // получили все ключи
@@ -142,8 +143,10 @@ module.exports.updateUserMe = (req, res, next) => {
       runValidators: true, // данные будут валидированы перед изменением
     },
   )
-    .orFail(() => next(new NotFound('Пользователь с указанным _id не найден.')))
-    .then(() => res.send({
+    .orFail(() => {
+      next(new NotFound('Пользователь с указанным _id не найден.'));
+    })
+    .then(() => res.status(200).send({
       name,
       about,
     }))
@@ -183,8 +186,10 @@ module.exports.updateUserAvatar = (req, res, next) => {
       runValidators: true, // данные будут валидированы перед изменением
     },
   )
-    .orFail(() => next(new NotFound('Не передан емейл или пароль')))
-    .then((data) => res.send({ data }))
+    .orFail(() => {
+      throw new NotFound('Не передан емейл или пароль');
+    })
+    .then((data) => res.status(200).send({ data }))
     .catch((err) => {
       if (err.errors) {
         // получили все ключи
