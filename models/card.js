@@ -12,7 +12,6 @@ const catrdSchema = new mongoose.Schema({
   link: {
     type: String,
     required: true,
-    // match: [regex, 'Пожалуйста, заполните действительный URL-адрес'],
   },
   owner: {
     type: mongoose.Schema.Types.ObjectId,

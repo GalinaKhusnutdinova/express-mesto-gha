@@ -2,11 +2,6 @@ const { checkToken } = require('../utils/jwt');
 const User = require('../models/users');
 const Unauthorized = require('../errors/Unauthorized'); // 401
 
-// const throwUnauthorizedError = () => {
-//   next(new Unauthorized('Авторизуйтесь для доступа'));
-//   return;
-// };
-
 const isAuthorized = (req, res, next) => {
   const auth = req.headers.authorization;
   if (!auth) {

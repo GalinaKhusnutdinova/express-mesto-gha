@@ -1,11 +1,8 @@
 const Card = require('../models/card');
-
 // error
 const ValidationError = require('../errors/ValidationError'); // 400
-// const Unauthorized = require('../errors/Unauthorized'); // 401
 const Forbidden = require('../errors/Forbidden'); // 403
 const NotFound = require('../errors/NotFound'); // 404
-// const Conflict = require('../errors/Conflict'); // 409
 const InternalServerError = require('../errors/InternalServerError'); // 500
 
 // GET-запрос возвращает все карточки из базы данных.
@@ -89,10 +86,7 @@ module.exports.deleteCard = (req, res, next) => {
       }
       next(new InternalServerError('Ошибка по умолчанию.'));
     })
-    .catch((err) => {
-      next(err);
-      console.log(err);
-    });
+    .catch(next);
 };
 
 // PUT-запрос добавляет лайк карточке.
@@ -141,7 +135,6 @@ module.exports.dislikeCard = (req, res, next) => {
       next(new NotFound('Передан несуществующий _id карточки.'));
     })
     .then((card) => {
-      console.log(card);
       res.status(200).send({ data: card });
     })
     .catch((err) => {
