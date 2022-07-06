@@ -37,10 +37,10 @@ app.post('/signup', celebrate({
   }),
 }), createUser);
 
-app.use(isAuthorized);
+// app.use(isAuthorized);
 
-app.use('/users', usersPouter);
-app.use('/cards', cardPouter);
+app.use('/users', isAuthorized, usersPouter);
+app.use('/cards', isAuthorized, cardPouter);
 
 app.use((req, res, next) => next(new NotFound('Некорректный путь')));
 
