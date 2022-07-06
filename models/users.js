@@ -1,8 +1,7 @@
 const mongoose = require('mongoose');
 // const validator = require('validator');
 const { default: isEmail } = require('validator/lib/isEmail');
-
-const regex = /https?:\/\/(www\.)?[-a-z0-9-._~:/?#@!$&'()*+,;=]+/gi;
+const { regex } = require('../utils/utils');
 
 // Опишем схему:
 const userSchema = new mongoose.Schema({

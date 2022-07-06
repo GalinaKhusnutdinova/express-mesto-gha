@@ -5,6 +5,7 @@ const { errors } = require('celebrate');
 const bodyParser = require('body-parser');
 const usersPouter = require('./routes/users');
 const cardPouter = require('./routes/card');
+const regexUrl = require('./utils/utils');
 
 const { createUser, login } = require('./controllers/users');
 const { isAuthorized } = require('./middlewares/isAuthorized');
@@ -27,18 +28,15 @@ app.post('/signin', celebrate({
   }),
 }), login);
 
-// app.post('/signin', login);
 app.post('/signup', celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email(),
     password: Joi.string().required().min(8),
-    name: Joi.string().required().min(2).max(30),
+    name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
-    avatar: Joi.string().required().min(2),
+    avatar: Joi.string().pattern(new RegExp(regexUrl)),
   }).unknown(true),
 }), createUser);
-
-// app.post('/signup', createUser);
 
 app.use('/users', isAuthorized, usersPouter);
 app.use('/cards', isAuthorized, cardPouter);
@@ -49,6 +47,7 @@ app.use((req, res) => {
   res.status(404).send({ message: 'Некорректный путь' });
 });
 
+// eslint-disable-next-line no-unused-vars
 app.use((err, req, res, next) => {
   if (err.statusCode) {
     res.status(err.statusCode).send({ message: err.message });

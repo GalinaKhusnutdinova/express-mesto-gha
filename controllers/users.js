@@ -1,8 +1,6 @@
 const bcrypt = require('bcrypt');
 const User = require('../models/users');
-const {
-  MONGO_DUPLICATE_ERROR_CODE,
-} = require('../utils/utils');
+const { MONGO_DUPLICATE_ERROR_CODE } = require('../utils/utils');
 const { generateToken } = require('../utils/jwt');
 
 // error

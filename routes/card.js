@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const { celebrate, Joi } = require('celebrate');
+const regexUrl = require('../utils/utils');
 
 const {
   findCards,
@@ -16,8 +17,9 @@ router.get('/', findCards);
 router.post('/', celebrate({
   body: Joi.object().keys({
     name: Joi.string().required().min(2).max(30),
-    link: Joi.string().required(),
+    link: Joi.string().required().pattern(new RegExp(regexUrl)),
   }),
+  // new RegExp(regexUrl)
 }), createCard);
 
 // сработает при DELETE-запросе на URL /:cardId — удаляет карточку по идентификатору
@@ -27,31 +29,26 @@ router.delete('/:cardId', celebrate({
     cardId: Joi.string().alphanum().length(24),
   }),
   headers: Joi.object().keys({
-    // валидируем заголовки
     authorization: Joi.string(),
   }).unknown(true),
 }), deleteCard);
 
 // сработает при PUT-запросе на URL /:cardId/likes — поставить лайк карточке
 router.put('/:cardId/likes', celebrate({
-  // валидируем параметры
   params: Joi.object().keys({
     cardId: Joi.string().alphanum().length(24),
   }),
   headers: Joi.object().keys({
-    // валидируем заголовки
     authorization: Joi.string(),
   }).unknown(true),
 }), likeCard);
 
 // сработает при DELETE-запросе на URL /:cardId/likes — поставить дизлайк карточке
 router.delete('/:cardId/likes', celebrate({
-  // валидируем параметры
   params: Joi.object().keys({
     cardId: Joi.string().alphanum().length(24),
   }),
   headers: Joi.object().keys({
-    // валидируем заголовки
     authorization: Joi.string(),
   }).unknown(true),
 }), dislikeCard);
