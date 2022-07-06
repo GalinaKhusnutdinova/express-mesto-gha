@@ -62,7 +62,8 @@ module.exports.deleteCard = (req, res, next) => {
       const userId = req.user.id.toString();
 
       if (userId !== owner) {
-        throw new Forbidden('Вы не можете удалять чужие каточки');
+        next(new Forbidden('Вы не можете удалять чужие каточки'));
+        return;
       }
       Card.findByIdAndRemove(req.params.cardId)
         .then(() => res.status(200).send({ data: card }));
