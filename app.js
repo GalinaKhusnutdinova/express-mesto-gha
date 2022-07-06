@@ -42,9 +42,7 @@ app.use(isAuthorized);
 app.use('/users', usersPouter);
 app.use('/cards', cardPouter);
 
-app.use((req, res, next) => {
-  next(new NotFound('Некорректный путь'));
-});
+app.use((req, res, next) => next(new NotFound('Некорректный путь')));
 
 app.use(errors()); // обработчик ошибок celebrate
 
