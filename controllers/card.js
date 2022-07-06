@@ -8,7 +8,7 @@ const InternalServerError = require('../errors/InternalServerError'); // 500
 // GET-запрос возвращает все карточки из базы данных.
 module.exports.findCards = (req, res, next) => {
   Card.find({})
-    .then((cards) => res.status(200).send({ data: cards }))
+    .then((cards) => res.send({ data: cards }))
     .catch(() => next(new InternalServerError('Ошибка по умолчанию.')))
     .catch(next);
 };
@@ -51,9 +51,7 @@ module.exports.createCard = (req, res, next) => {
 // DELETE-запрос удаляет карточку по _id.
 module.exports.deleteCard = (req, res, next) => {
   Card.findById(req.params.cardId)
-    .orFail(() => {
-      next(new NotFound('Передан несуществующий _id карточки.'));
-    })
+    .orFail(() => next(new NotFound('Передан несуществующий _id карточки.')))
     .then((card) => {
       const owner = card.owner.toString();
       const userId = req.user.id.toString();
@@ -63,7 +61,7 @@ module.exports.deleteCard = (req, res, next) => {
         return;
       }
       Card.findByIdAndRemove(req.params.cardId)
-        .then(() => res.status(200).send({ data: card }));
+        .then(() => res.send({ data: card }));
     })
     .catch((err) => {
       if (err.errors) {
@@ -80,10 +78,10 @@ module.exports.deleteCard = (req, res, next) => {
         next(new ValidationError('Переданы некорректные данные при создании пользователя.'));
         return;
       }
-      if (err.statusCode === 404) {
-        next(new NotFound(err.message));
-        return;
-      }
+      // if (err.statusCode === 404) {
+      //   next(new NotFound(err.message));
+      //   return;
+      // }
       next(new InternalServerError('Ошибка по умолчанию.'));
     })
     .catch(next);
@@ -96,10 +94,8 @@ module.exports.likeCard = (req, res, next) => {
     { $addToSet: { likes: { _id: req.user.id } } }, // добавить _id в массив, если его там нет
     { new: true },
   )
-    .orFail(() => {
-      next(new NotFound('Передан несуществующий _id карточки.'));
-    })
-    .then((likes) => res.status(200).send({ data: likes }))
+    .orFail(() => next(new NotFound('Передан несуществующий _id карточки.')))
+    .then((likes) => res.send({ data: likes }))
     .catch((err) => {
       if (err.errors) {
         // получили все ключи
@@ -115,10 +111,10 @@ module.exports.likeCard = (req, res, next) => {
         next(new ValidationError('Переданы некорректные данные для постановки лайка.'));
         return;
       }
-      if (err.statusCode === 404) {
-        next(new NotFound(err.message));
-        return;
-      }
+      // if (err.statusCode === 404) {
+      //   next(new NotFound(err.message));
+      //   return;
+      // }
       next(new InternalServerError('Ошибка по умолчанию.'));
     })
     .catch(next);
@@ -131,11 +127,9 @@ module.exports.dislikeCard = (req, res, next) => {
     { $pull: { likes: req.user.id } }, // убрать _id из массива
     { new: true },
   )
-    .orFail(() => {
-      next(new NotFound('Передан несуществующий _id карточки.'));
-    })
+    .orFail(() => next(new NotFound('Передан несуществующий _id карточки.')))
     .then((card) => {
-      res.status(200).send({ data: card });
+      res.send({ data: card });
     })
     .catch((err) => {
       if (err.errors) {
@@ -152,10 +146,10 @@ module.exports.dislikeCard = (req, res, next) => {
         next(new ValidationError('Переданы некорректные данные для снятии лайка.'));
         return;
       }
-      if (err.statusCode === 404) {
-        next(new NotFound(err.message));
-        return;
-      }
+      // if (err.statusCode === 404) {
+      //   next(new NotFound(err.message));
+      //   return;
+      // }
       next(new InternalServerError('Ошибка по умолчанию.'));
     })
     .catch(next);
