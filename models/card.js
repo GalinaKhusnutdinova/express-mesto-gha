@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const { regex } = require('../utils/utils');
+// const { regex } = require('../utils/utils');
 
 // Опишем схему:
 const catrdSchema = new mongoose.Schema({
@@ -12,7 +12,7 @@ const catrdSchema = new mongoose.Schema({
   link: {
     type: String,
     required: true,
-    match: [regex, 'Пожалуйста, заполните действительный URL-адрес'],
+    // match: [regex, 'Пожалуйста, заполните действительный URL-адрес'],
   },
   owner: {
     type: mongoose.Schema.Types.ObjectId,
