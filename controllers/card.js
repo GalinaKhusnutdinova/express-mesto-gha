@@ -99,7 +99,7 @@ module.exports.deleteCard = (req, res, next) => {
 module.exports.likeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
-    { $addToSet: { likes: { _id: req.user._id } } }, // добавить _id в массив, если его там нет
+    { $addToSet: { likes: { _id: req.user.id } } }, // добавить _id в массив, если его там нет
     { new: true },
   )
     .orFail(() => {
