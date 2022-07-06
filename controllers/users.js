@@ -151,7 +151,7 @@ module.exports.updateUserMe = (req, res, next) => {
     .orFail(() => {
       next(new NotFound('Пользователь с указанным _id не найден.'));
     })
-    .then((user) => res.status(200).send({ data: user }))
+    .then(() => res.status(200).send({ name, about }))
     .catch((err) => {
       if (err.errors) {
         // получили все ключи
