@@ -27,9 +27,9 @@ router.delete('/:cardId', celebrate({
   params: Joi.object().keys({
     cardId: Joi.string().alphanum().length(24).required(),
   }),
-  headers: Joi.object().keys({
-    authorization: Joi.string(),
-  }).unknown(true),
+  // headers: Joi.object().keys({
+  //   authorization: Joi.string(),
+  // }).unknown(true),
 }), deleteCard);
 
 // сработает при PUT-запросе на URL /:cardId/likes — поставить лайк карточке
