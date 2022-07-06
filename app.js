@@ -49,19 +49,17 @@ app.use((req, res) => {
   res.status(404).send({ message: 'Некорректный путь' });
 });
 
-// eslint-disable-next-line no-unused-vars
 app.use((err, req, res, next) => {
   if (err.statusCode) {
     res.status(err.statusCode).send({ message: err.message });
     return;
   }
 
+  // eslint-disable-next-line no-console
   console.error(err.stack);
 
   res.status(500).send({ message: 'Что-то пошло не так' });
 });
-
-
 
 app.listen(PORT, () => {
   // Если всё работает, консоль покажет, какой порт приложение слушает
