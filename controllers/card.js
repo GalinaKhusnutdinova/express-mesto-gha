@@ -1,10 +1,11 @@
 const Card = require('../models/card');
 
 // error
-// const ValidationError = require('../errors/ValidationError'); // 400
-const Unauthorized = require('../errors/Unauthorized'); // 401
+const ValidationError = require('../errors/ValidationError'); // 400
+// const Unauthorized = require('../errors/Unauthorized'); // 401
 const Forbidden = require('../errors/Forbidden'); // 403
 const NotFound = require('../errors/NotFound'); // 404
+// const Conflict = require('../errors/Conflict'); // 409
 const InternalServerError = require('../errors/InternalServerError'); // 500
 
 // GET-запрос возвращает все карточки из базы данных.
@@ -36,12 +37,12 @@ module.exports.createCard = (req, res, next) => {
         // взяли ошибку по первому ключу, и дальше уже в ней смотреть.
         const error = err.errors[errorKeys[0]];
         if (err.name === 'ValidationError' || err.name === 'CastError') {
-          next(new Unauthorized(`Переданы некорректные данные при создание карточки. ${error}`));
+          next(new ValidationError(`Переданы некорректные данные при создание карточки. ${error}`));
           return;
         }
       }
       if (err.name === 'CastError') {
-        next(new Unauthorized('Переданы некорректные данные при создании пользователя.'));
+        next(new ValidationError('Переданы некорректные данные при создании пользователя.'));
         return;
       }
 
@@ -73,12 +74,12 @@ module.exports.deleteCard = (req, res, next) => {
         // взяли ошибку по первому ключу, и дальше уже в ней смотреть.
         const error = err.errors[errorKeys[0]];
         if (err.name === 'ValidationError') {
-          next(new Unauthorized(`Карточка с указанным _id не найдена. ${error}`));
+          next(new ValidationError(`Карточка с указанным _id не найдена. ${error}`));
           return;
         }
       }
       if (err.name === 'CastError') {
-        next(new Unauthorized('Переданы некорректные данные при создании пользователя.'));
+        next(new ValidationError('Переданы некорректные данные при создании пользователя.'));
         return;
       }
       if (err.statusCode === 404) {
@@ -108,12 +109,12 @@ module.exports.likeCard = (req, res, next) => {
         // взяли ошибку по первому ключу, и дальше уже в ней смотреть.
         const error = err.errors[errorKeys[0]];
         if (err.name === 'ValidationError') {
-          next(new Unauthorized(`Переданы некорректные данные для постановки лайка. ${error}`));
+          next(new ValidationError(`Переданы некорректные данные для постановки лайка. ${error}`));
           return;
         }
       }
       if (err.name === 'CastError') {
-        next(new Unauthorized('Переданы некорректные данные для постановки лайка.'));
+        next(new ValidationError('Переданы некорректные данные для постановки лайка.'));
         return;
       }
       if (err.statusCode === 404) {
@@ -143,12 +144,12 @@ module.exports.dislikeCard = (req, res, next) => {
         // взяли ошибку по первому ключу, и дальше уже в ней смотреть.
         const error = err.errors[errorKeys[0]];
         if (err.name === 'ValidationError') {
-          next(new Unauthorized(`Переданы некорректные данные для снятии лайка. ${error}`));
+          next(new ValidationError(`Переданы некорректные данные для снятии лайка. ${error}`));
           return;
         }
       }
       if (err.name === 'CastError') {
-        next(new Unauthorized('Переданы некорректные данные для снятии лайка.'));
+        next(new ValidationError('Переданы некорректные данные для снятии лайка.'));
         return;
       }
       if (err.statusCode === 404) {

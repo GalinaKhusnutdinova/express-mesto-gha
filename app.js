@@ -6,7 +6,6 @@ const bodyParser = require('body-parser');
 const usersPouter = require('./routes/users');
 const cardPouter = require('./routes/card');
 const regexUrl = require('./utils/utils');
-
 const { createUser, login } = require('./controllers/users');
 const { isAuthorized } = require('./middlewares/isAuthorized');
 
@@ -38,8 +37,10 @@ app.post('/signup', celebrate({
   }),
 }), createUser);
 
-app.use('/users', isAuthorized, usersPouter);
-app.use('/cards', isAuthorized, cardPouter);
+app.use(isAuthorized);
+
+app.use('/users', usersPouter);
+app.use('/cards', cardPouter);
 
 app.use((req, res) => {
   res.status(404).send({ message: 'Некорректный путь' });
@@ -53,7 +54,6 @@ app.use((err, req, res, next) => {
     res.status(err.statusCode).send({ message: err.message });
     return;
   }
-
   // eslint-disable-next-line no-console
   console.error(err.stack);
 
