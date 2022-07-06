@@ -134,13 +134,16 @@ module.exports.likeCard = (req, res, next) => {
 module.exports.dislikeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
-    { $pull: { likes: { _id: req.user.id } } }, // убрать _id из массива
+    { $pull: { likes: req.user.id } }, // убрать _id из массива
     { new: true },
   )
     .orFail(() => {
       next(new NotFound('Передан несуществующий _id карточки.'));
     })
-    .then((dislikes) => res.status(200).send({ data: dislikes }))
+    .then((card) => {
+      console.log(card);
+      res.status(200).send({ data: card });
+    })
     .catch((err) => {
       if (err.errors) {
         // получили все ключи
