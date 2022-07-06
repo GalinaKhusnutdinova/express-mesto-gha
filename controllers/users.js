@@ -21,9 +21,7 @@ module.exports.findUsers = (req, res, next) => {
 // GET-запрос возвращает пользователя по переданному _id
 module.exports.findByIdUser = (req, res, next) => {
   User.findById(req.params.userId)
-    .orFail(() => {
-      next(new NotFound('Пользователь по указанному _id не найден'));
-    })
+    .orFail(() => next(new NotFound('Пользователь по указанному _id не найден')))
     .then((user) => res.status(200).send({ data: user }))
     .catch((err) => {
       if (err.errors) {
@@ -143,9 +141,7 @@ module.exports.updateUserMe = (req, res, next) => {
       runValidators: true, // данные будут валидированы перед изменением
     },
   )
-    .orFail(() => {
-      next(new NotFound('Пользователь с указанным _id не найден.'));
-    })
+    .orFail(() => next(new NotFound('Пользователь с указанным _id не найден.')))
     .then(() => res.status(200).send({
       name,
       about,

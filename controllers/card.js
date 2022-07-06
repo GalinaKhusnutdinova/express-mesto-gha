@@ -94,9 +94,7 @@ module.exports.likeCard = (req, res, next) => {
     { $addToSet: { likes: { _id: req.user.id } } }, // добавить _id в массив, если его там нет
     { new: true },
   )
-    .orFail(() => {
-      next(new NotFound('Передан несуществующий _id карточки.'));
-    })
+    .orFail(() => next(new NotFound('Передан несуществующий _id карточки.')))
     .then((likes) => res.status(200).send({ data: likes }))
     .catch((err) => {
       if (err.errors) {
@@ -129,9 +127,7 @@ module.exports.dislikeCard = (req, res, next) => {
     { $pull: { likes: req.user.id } }, // убрать _id из массива
     { new: true },
   )
-    .orFail(() => {
-      next(new NotFound('Передан несуществующий _id карточки.'));
-    })
+    .orFail(() => next(new NotFound('Передан несуществующий _id карточки.')))
     .then((card) => {
       res.status(200).send({ data: card });
     })
