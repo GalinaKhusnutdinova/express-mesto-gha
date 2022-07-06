@@ -51,9 +51,7 @@ module.exports.createCard = (req, res, next) => {
 // DELETE-запрос удаляет карточку по _id.
 module.exports.deleteCard = (req, res, next) => {
   Card.findById(req.params.cardId)
-    .orFail(() => {
-      next(new NotFound('Передан несуществующий _id карточки.'));
-    })
+    .orFail(() => next(new NotFound('Передан несуществующий _id карточки.')))
     .then((card) => {
       const owner = card.owner.toString();
       const userId = req.user.id.toString();
