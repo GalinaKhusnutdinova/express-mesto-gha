@@ -25,6 +25,8 @@ const isAuthorized = (req, res, next) => {
       next();
     });
   } catch (err) {
+    next(new Unauthorized('Авторизуйтесь для доступа'));
+
     next(err);
   }
 };
