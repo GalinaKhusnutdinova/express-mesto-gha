@@ -136,7 +136,7 @@ module.exports.updateUserMe = (req, res, next) => {
   const { name, about } = req.body;
 
   User.findByIdAndUpdate(
-    req.user._id,
+    req.user.id,
     { name, about },
     {
       new: true, // обработчик then получит на вход обновлённую запись
@@ -179,7 +179,7 @@ module.exports.updateUserAvatar = (req, res, next) => {
   const { avatar } = req.body;
 
   User.findByIdAndUpdate(
-    req.user._id,
+    req.user.id,
     { avatar },
     {
       new: true, // обработчик then получит на вход обновлённую запись
