@@ -4,7 +4,7 @@ const { MONGO_DUPLICATE_ERROR_CODE } = require('../utils/utils');
 const { generateToken } = require('../utils/jwt');
 
 // error
-const ValidationError = require('../errors/ValidationError'); // 400
+// const ValidationError = require('../errors/ValidationError'); // 400
 const Unauthorized = require('../errors/Unauthorized'); // 401
 const NotFound = require('../errors/NotFound'); // 404
 const Conflict = require('../errors/Conflict'); // 409
@@ -32,12 +32,12 @@ module.exports.findByIdUser = (req, res, next) => {
         // взяли ошибку по первому ключу, и дальше уже в ней смотреть.
         const error = err.errors[errorKeys[0]];
         if (err.name === 'ValidationError') {
-          next(new ValidationError(`Переданы некорректные данные при создание пользователя. ${error}`));
+          next(new Unauthorized(`Переданы некорректные данные при создание пользователя. ${error}`));
           return;
         }
       }
       if (err.name === 'CastError') {
-        next(new ValidationError('Переданы некорректные данные при создание пользователя.'));
+        next(new Unauthorized('Переданы некорректные данные при создание пользователя.'));
         return;
       }
       if (err.statusCode === 404) {
@@ -72,12 +72,12 @@ module.exports.findOnedUserMe = (req, res, next) => {
         // взяли ошибку по первому ключу, и дальше уже в ней смотреть.
         const error = err.errors[errorKeys[0]];
         if (err.name === 'ValidationError') {
-          next(new ValidationError(`Переданы некорректные данные при создание пользователя. ${error}`));
+          next(new Unauthorized(`Переданы некорректные данные при создание пользователя. ${error}`));
           return;
         }
       }
       if (err.name === 'CastError') {
-        next(new ValidationError('Переданы некорректные данные при создание пользователя.'));
+        next(new Unauthorized('Переданы некорректные данные при создание пользователя.'));
         return;
       }
       if (err.statusCode === 404) {
@@ -123,13 +123,13 @@ module.exports.createUser = (req, res, next) => {
         // взяли ошибку по первому ключу, и дальше уже в ней смотреть.
         const error = err.errors[errorKeys[0]];
         if (err.name === 'ValidationError' || err.name === 'CastError') {
-          next(new ValidationError(`Переданы некорректные данные при создание пользователя. ${error}`));
+          next(new Unauthorized(`Переданы некорректные данные при создание пользователя. ${error}`));
           return;
         }
       }
 
       if (err.name === 'CastError') {
-        next(new ValidationError('Переданы некорректные данные при создании пользователя.'));
+        next(new Unauthorized('Переданы некорректные данные при создании пользователя.'));
         return;
       }
 
@@ -161,12 +161,12 @@ module.exports.updateUserMe = (req, res, next) => {
         // взяли ошибку по первому ключу, и дальше уже в ней смотреть.
         const error = err.errors[errorKeys[0]];
         if (err.name === 'ValidationError' || err.name === 'CastError') {
-          next(new ValidationError(`Переданы некорректные данные при обновлении профиля. ${error}`));
+          next(new Unauthorized(`Переданы некорректные данные при обновлении профиля. ${error}`));
           return;
         }
       }
       if (err.name === 'CastError') {
-        next(new ValidationError('Переданы некорректные данные при обновлении профиля.'));
+        next(new Unauthorized('Переданы некорректные данные при обновлении профиля.'));
         return;
       }
       if (err.statusCode === 404) {
@@ -201,12 +201,12 @@ module.exports.updateUserAvatar = (req, res, next) => {
         // взяли ошибку по первому ключу, и дальше уже в ней смотреть.
         const error = err.errors[errorKeys[0]];
         if (err.name === 'ValidationError' || err.name === 'CastError') {
-          next(new ValidationError(`Переданы некорректные данные при обновлении профиля. ${error}`));
+          next(new Unauthorized(`Переданы некорректные данные при обновлении профиля. ${error}`));
           return;
         }
       }
       if (err.name === 'CastError') {
-        next(new ValidationError('Переданы некорректные данные при обновлении профиля.'));
+        next(new Unauthorized('Переданы некорректные данные при обновлении профиля.'));
         return;
       }
       if (err.statusCode === 404) {
