@@ -107,6 +107,7 @@ module.exports.createUser = (req, res, next) => {
     .catch((err) => {
       if (err.code === MONGO_DUPLICATE_ERROR_CODE) {
         next(new Conflict('Пользователь с таким email уже существует'));
+        return;
       }
 
       if (err.errors) { // получили все ключи
