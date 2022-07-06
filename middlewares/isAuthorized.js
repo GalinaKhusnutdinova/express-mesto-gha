@@ -25,11 +25,8 @@ const isAuthorized = (req, res, next) => {
       next();
     });
   } catch (err) {
-    next(new Unauthorized('Авторизуйтесь для доступа'));
-    return;
+    next(err);
   }
-
-  next();
 };
 
 module.exports = { isAuthorized };
