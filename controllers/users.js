@@ -58,7 +58,6 @@ module.exports.findOnedUserMe = (req, res, next) => {
         return;
       }
       res.status(200).send({
-        _id: user._id,
         name: user.name,
         about: user.about,
         avatar: user.avatar,
@@ -151,7 +150,10 @@ module.exports.updateUserMe = (req, res, next) => {
     .orFail(() => {
       next(new NotFound('Пользователь с указанным _id не найден.'));
     })
-    .then(() => res.status(200).send({ name, about }))
+    .then(() => res.status(200).send({
+      name,
+      about,
+    }))
     .catch((err) => {
       if (err.errors) {
         // получили все ключи
