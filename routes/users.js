@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const { celebrate, Joi } = require('celebrate');
+const regexUrl = require('../utils/utils');
 
 const {
   findUsers,
@@ -13,14 +14,7 @@ const {
 router.get('/', findUsers);
 
 // сработает при GET-запросе на URL /users/me
-router.get('/me', celebrate({
-  body: Joi.object().keys({
-    _id: Joi.string().required().length(24),
-  }),
-  headers: Joi.object().keys({
-    authorization: Joi.string(),
-  }).unknown(true),
-}), findOnedUserMe);
+router.get('/me', findOnedUserMe);
 
 // сработает при GET-запросе на URL /users/:userId
 router.get('/:userId', celebrate({
@@ -35,17 +29,16 @@ router.get('/:userId', celebrate({
 // сработает при PATCH-запросе на URL /users/me
 router.patch('/me', celebrate({
   body: Joi.object().keys({
-    name: Joi.string().required().min(2).max(30),
-    about: Joi.string().required().min(2).max(30),
+    name: Joi.string().min(2).max(30),
+    about: Joi.string().min(2).max(30),
   }).unknown(true),
 }), updateUserMe);
 
 // сработает при PATCH-запросе на URL /users/me/avatar
 router.patch('/me/avatar', celebrate({
   body: Joi.object().keys({
-    email: Joi.string().required().email(),
-    password: Joi.string().required().min(8),
-  }).unknown(true),
+    avatar: Joi.string().required().pattern(new RegExp(regexUrl)),
+  }),
 }), updateUserAvatar);
 
 module.exports = router;

@@ -51,14 +51,14 @@ module.exports.findByIdUser = (req, res, next) => {
 
 // GET-запрос возвращает пользователя
 module.exports.findOnedUserMe = (req, res, next) => {
-  const { _id } = req.body;
-  User.findOne({ _id })
+  User.findOne(req.user.id)
     .then((user) => {
       if (!user) {
         next(new NotFound('Пользователь по указанному _id не найден'));
         return;
       }
       res.status(200).send({
+        _id: user._id,
         name: user.name,
         aboute: user.about,
         avatar: user.avatar,

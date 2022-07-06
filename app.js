@@ -35,17 +35,17 @@ app.post('/signup', celebrate({
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
     avatar: Joi.string().pattern(new RegExp(regexUrl)),
-  }).unknown(true),
+  }),
 }), createUser);
 
 app.use('/users', isAuthorized, usersPouter);
 app.use('/cards', isAuthorized, cardPouter);
 
-app.use(errors()); // обработчик ошибок celebrate
-
 app.use((req, res) => {
   res.status(404).send({ message: 'Некорректный путь' });
 });
+
+app.use(errors()); // обработчик ошибок celebrate
 
 // eslint-disable-next-line no-unused-vars
 app.use((err, req, res, next) => {
