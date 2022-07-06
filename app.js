@@ -43,6 +43,8 @@ app.post('/signup', celebrate({
 app.use('/users', isAuthorized, usersPouter);
 app.use('/cards', isAuthorized, cardPouter);
 
+app.use(errors()); // обработчик ошибок celebrate
+
 app.use((req, res) => {
   res.status(404).send({ message: 'Некорректный путь' });
 });
@@ -59,7 +61,7 @@ app.use((err, req, res, next) => {
   res.status(500).send({ message: 'Что-то пошло не так' });
 });
 
-app.use(errors()); // обработчик ошибок celebrate
+
 
 app.listen(PORT, () => {
   // Если всё работает, консоль покажет, какой порт приложение слушает
