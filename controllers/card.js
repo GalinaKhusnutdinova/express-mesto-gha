@@ -88,7 +88,10 @@ module.exports.deleteCard = (req, res, next) => {
       }
       next(new InternalServerError('Ошибка по умолчанию.'));
     })
-    .catch(next);
+    .catch((err) => {
+      next(err);
+      console.log(err);
+    });
 };
 
 // PUT-запрос добавляет лайк карточке.
