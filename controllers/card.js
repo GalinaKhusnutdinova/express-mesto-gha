@@ -64,8 +64,8 @@ module.exports.deleteCard = (req, res, next) => {
       if (userId !== owner) {
         throw new Forbidden('Вы не можете удалять чужие каточки');
       }
-      Card.findByIdAndRemove(userId)
-        .then(() => res.status(200).send('Карточка успешно удалена'));
+      Card.findByIdAndRemove(req.params.cardId)
+        .then(() => res.status(200).send({ data: card }));
     })
     .catch((err) => {
       if (err.errors) {
@@ -101,7 +101,7 @@ module.exports.likeCard = (req, res, next) => {
     .orFail(() => {
       next(new NotFound('Передан несуществующий _id карточки.'));
     })
-    .then((likes) => res.status(200).send({ likes }))
+    .then((likes) => res.status(200).send({ data: likes }))
     .catch((err) => {
       if (err.errors) {
         // получили все ключи
@@ -136,7 +136,7 @@ module.exports.dislikeCard = (req, res, next) => {
     .orFail(() => {
       next(new NotFound('Передан несуществующий _id карточки.'));
     })
-    .then((dislikes) => res.status(200).send({ dislikes }))
+    .then((dislikes) => res.status(200).send({ data: dislikes }))
     .catch((err) => {
       if (err.errors) {
         // получили все ключи

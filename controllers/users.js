@@ -57,12 +57,7 @@ module.exports.findOnedUserMe = (req, res, next) => {
         next(new NotFound('Пользователь по указанному _id не найден'));
         return;
       }
-      res.status(200).send({
-        name: user.name,
-        about: user.about,
-        avatar: user.avatar,
-        email: user.email,
-      });
+      res.status(200).send({ data: user });
     })
     .catch((err) => {
       if (err.errors) {
@@ -104,11 +99,10 @@ module.exports.createUser = (req, res, next) => {
     .then((hash) => User.create({
       name, about, avatar, email, password: hash,
     }))
-    .then((user) => res.status(201).send({
+    .then(() => res.status(201).send({
       name,
       about,
       avatar,
-      _id: user._id,
     }))
     .catch((err) => {
       if (err.code === MONGO_DUPLICATE_ERROR_CODE) {
