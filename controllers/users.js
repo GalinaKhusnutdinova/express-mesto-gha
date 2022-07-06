@@ -51,7 +51,7 @@ module.exports.findByIdUser = (req, res, next) => {
 
 // GET-запрос возвращает пользователя
 module.exports.findOnedUserMe = (req, res, next) => {
-  User.findOne(req.user.id)
+  User.findById(req.user.id)
     .then((user) => {
       if (!user) {
         next(new NotFound('Пользователь по указанному _id не найден'));
@@ -99,10 +99,12 @@ module.exports.createUser = (req, res, next) => {
     .then((hash) => User.create({
       name, about, avatar, email, password: hash,
     }))
-    .then(() => res.status(201).send({
+    .then((user) => res.status(201).send({
       name,
       about,
       avatar,
+      email,
+      _id: user._id,
     }))
     .catch((err) => {
       if (err.code === MONGO_DUPLICATE_ERROR_CODE) {
