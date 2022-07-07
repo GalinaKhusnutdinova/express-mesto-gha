@@ -45,7 +45,7 @@ module.exports.findByIdUser = (req, res, next) => {
 
 // GET-запрос возвращает пользователя
 module.exports.findOnedUserMe = (req, res, next) => {
-  User.findById(req.user.id)
+  User.findById(req.user._id)
     .then((user) => {
       if (!user) {
         next(new NotFound('Пользователь по указанному _id не найден'));
@@ -118,7 +118,7 @@ module.exports.updateUserMe = (req, res, next) => {
   const { name, about } = req.body;
 
   User.findByIdAndUpdate(
-    req.user.id,
+    req.user._id,
     { name, about },
     {
       new: true, // обработчик then получит на вход обновлённую запись
@@ -155,7 +155,7 @@ module.exports.updateUserAvatar = (req, res, next) => {
   const { avatar } = req.body;
 
   User.findByIdAndUpdate(
-    req.user.id,
+    req.user._id,
     { avatar },
     {
       new: true, // обработчик then получит на вход обновлённую запись

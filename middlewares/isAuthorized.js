@@ -1,5 +1,4 @@
 const { checkToken } = require('../utils/jwt');
-const User = require('../models/users');
 const Unauthorized = require('../errors/Unauthorized'); // 401
 
 const isAuthorized = (req, res, next) => {
@@ -10,25 +9,16 @@ const isAuthorized = (req, res, next) => {
   }
 
   const token = auth.replace('Bearer ', '');
+  let payload;
 
   try {
-    const payload = checkToken(token);
-
-    User.findOne({ _id: payload._id }).then((user) => {
-      if (!user) {
-        next(new Unauthorized('Авторизуйтесь для доступа'));
-        return;
-      }
-
-      req.user = { id: user._id };
-
-      next();
-    });
+    payload = checkToken(token);
   } catch (err) {
     next(new Unauthorized('Авторизуйтесь для доступа'));
-
-    next(err);
   }
+  req.user = { _id: payload._id };
+
+  next();
 };
 
 module.exports = { isAuthorized };

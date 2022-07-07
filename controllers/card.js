@@ -16,7 +16,7 @@ module.exports.findCards = (req, res, next) => {
 // POST-запрос создает новую карточку по переданным параметрам.
 module.exports.createCard = (req, res, next) => {
   const { name, link } = req.body;
-  const owner = req.user.id;
+  const owner = req.user._id;
 
   Card.create({ name, link, owner })
     .then((card) => res.status(201).send({
@@ -54,7 +54,7 @@ module.exports.deleteCard = (req, res, next) => {
     .orFail(() => next(new NotFound('Передан несуществующий _id карточки.')))
     .then((card) => {
       const owner = card.owner.toString();
-      const userId = req.user.id.toString();
+      const userId = req.user._id.toString();
 
       if (userId !== owner) {
         next(new Forbidden('Вы не можете удалять чужие каточки'));
@@ -87,7 +87,7 @@ module.exports.deleteCard = (req, res, next) => {
 module.exports.likeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
-    { $addToSet: { likes: { _id: req.user.id } } }, // добавить _id в массив, если его там нет
+    { $addToSet: { likes: { _id: req.user._id } } }, // добавить _id в массив, если его там нет
     { new: true },
   )
     .orFail(() => next(new NotFound('Передан несуществующий _id карточки.')))
@@ -116,7 +116,7 @@ module.exports.likeCard = (req, res, next) => {
 module.exports.dislikeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
-    { $pull: { likes: req.user.id } }, // убрать _id из массива
+    { $pull: { likes: req.user._id } }, // убрать _id из массива
     { new: true },
   )
     .orFail(() => next(new NotFound('Передан несуществующий _id карточки.')))
