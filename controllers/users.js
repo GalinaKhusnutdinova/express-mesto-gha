@@ -88,9 +88,9 @@ module.exports.createUser = (req, res, next) => {
     name, about, avatar, email, password,
   } = req.body;
 
-  if (!email || !password) {
-    throw new Unauthorized('Не передан емейл или пароль');
-  }
+  // if (!email || !password) {
+  //   throw new Unauthorized('Не передан емейл или пароль');
+  // }
 
   bcrypt
     .hash(password, 10)
