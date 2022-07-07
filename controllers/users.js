@@ -38,10 +38,6 @@ module.exports.findByIdUser = (req, res, next) => {
         next(new ValidationError('Переданы некорректные данные при создание пользователя.'));
         return;
       }
-      // if (err.statusCode === 404) {
-      //   next(new NotFound(err.message));
-      //   return;
-      // }
       next();
     })
     .catch(next);
@@ -72,10 +68,6 @@ module.exports.findOnedUserMe = (req, res, next) => {
         next(new ValidationError('Переданы некорректные данные при создание пользователя.'));
         return;
       }
-      // if (err.statusCode === 404) {
-      //   next(new NotFound(err.message));
-      //   return;
-      // }
       next();
     })
     .catch(next);
@@ -87,10 +79,6 @@ module.exports.createUser = (req, res, next) => {
   const {
     name, about, avatar, email, password,
   } = req.body;
-
-  // if (!email || !password) {
-  //   throw new Unauthorized('Не передан емейл или пароль');
-  // }
 
   bcrypt
     .hash(password, 10)
@@ -119,11 +107,6 @@ module.exports.createUser = (req, res, next) => {
           return;
         }
       }
-
-      // if (err.name === 'CastError') {
-      //   next(new ValidationError('Переданы некорректные данные при создании пользователя.'));
-      //   return;
-      // }
 
       next();
     })
@@ -162,10 +145,6 @@ module.exports.updateUserMe = (req, res, next) => {
         next(new ValidationError('Переданы некорректные данные при обновлении профиля.'));
         return;
       }
-      // if (err.statusCode === 404) {
-      //   next(new NotFound(err.message));
-      //   return;
-      // }
       next();
     })
     .catch(next);
@@ -202,10 +181,6 @@ module.exports.updateUserAvatar = (req, res, next) => {
         next(new ValidationError('Переданы некорректные данные при обновлении профиля.'));
         return;
       }
-      // if (err.statusCode === 404) {
-      //   next(new NotFound(err.message));
-      //   return;
-      // }
       next();
     })
     .catch(next);

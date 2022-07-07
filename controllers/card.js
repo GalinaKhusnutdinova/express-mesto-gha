@@ -78,10 +78,6 @@ module.exports.deleteCard = (req, res, next) => {
         next(new ValidationError('Переданы некорректные данные при создании пользователя.'));
         return;
       }
-      // if (err.statusCode === 404) {
-      //   next(new NotFound(err.message));
-      //   return;
-      // }
       next();
     })
     .catch(next);
@@ -111,10 +107,6 @@ module.exports.likeCard = (req, res, next) => {
         next(new ValidationError('Переданы некорректные данные для постановки лайка.'));
         return;
       }
-      // if (err.statusCode === 404) {
-      //   next(new NotFound(err.message));
-      //   return;
-      // }
       next();
     })
     .catch(next);
@@ -146,10 +138,6 @@ module.exports.dislikeCard = (req, res, next) => {
         next(new ValidationError('Переданы некорректные данные для снятии лайка.'));
         return;
       }
-      // if (err.statusCode === 404) {
-      //   next(new NotFound(err.message));
-      //   return;
-      // }
       next();
     })
     .catch(next);
