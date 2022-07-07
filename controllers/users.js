@@ -38,10 +38,10 @@ module.exports.findByIdUser = (req, res, next) => {
         next(new ValidationError('Переданы некорректные данные при создание пользователя.'));
         return;
       }
-      if (err.statusCode === 404) {
-        next(new NotFound(err.message));
-        return;
-      }
+      // if (err.statusCode === 404) {
+      //   next(new NotFound(err.message));
+      //   return;
+      // }
       next(new InternalServerError('Ошибка по умолчанию.'));
     })
     .catch(next);
@@ -72,10 +72,10 @@ module.exports.findOnedUserMe = (req, res, next) => {
         next(new ValidationError('Переданы некорректные данные при создание пользователя.'));
         return;
       }
-      if (err.statusCode === 404) {
-        next(new NotFound(err.message));
-        return;
-      }
+      // if (err.statusCode === 404) {
+      //   next(new NotFound(err.message));
+      //   return;
+      // }
       next(new InternalServerError('Ошибка по умолчанию.'));
     })
     .catch(next);
@@ -162,10 +162,10 @@ module.exports.updateUserMe = (req, res, next) => {
         next(new ValidationError('Переданы некорректные данные при обновлении профиля.'));
         return;
       }
-      if (err.statusCode === 404) {
-        next(new NotFound(err.message));
-        return;
-      }
+      // if (err.statusCode === 404) {
+      //   next(new NotFound(err.message));
+      //   return;
+      // }
       next(new InternalServerError('Ошибка по умолчанию.'));
     })
     .catch(next);
@@ -202,10 +202,10 @@ module.exports.updateUserAvatar = (req, res, next) => {
         next(new ValidationError('Переданы некорректные данные при обновлении профиля.'));
         return;
       }
-      if (err.statusCode === 404) {
-        next(new NotFound(err.message));
-        return;
-      }
+      // if (err.statusCode === 404) {
+      //   next(new NotFound(err.message));
+      //   return;
+      // }
       next(new InternalServerError('Ошибка по умолчанию.'));
     })
     .catch(next);
