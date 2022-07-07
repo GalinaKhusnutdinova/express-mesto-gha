@@ -120,10 +120,10 @@ module.exports.createUser = (req, res, next) => {
         }
       }
 
-      if (err.name === 'CastError') {
-        next(new ValidationError('Переданы некорректные данные при создании пользователя.'));
-        return;
-      }
+      // if (err.name === 'CastError') {
+      //   next(new ValidationError('Переданы некорректные данные при создании пользователя.'));
+      //   return;
+      // }
 
       next(new InternalServerError('Ошибка по умолчанию.'));
     })
