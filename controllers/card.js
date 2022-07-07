@@ -8,7 +8,7 @@ const InternalServerError = require('../errors/InternalServerError'); // 500
 // GET-запрос возвращает все карточки из базы данных.
 module.exports.findCards = (req, res, next) => {
   Card.find({})
-    .then((cards) => res.status(200).send({ data: cards }))
+    .then((cards) => res.send({ data: cards }))
     .catch(() => next(new InternalServerError('Ошибка по умолчанию.')))
     .catch(next);
 };
@@ -61,7 +61,7 @@ module.exports.deleteCard = (req, res, next) => {
         return;
       }
       Card.findByIdAndRemove(req.params.cardId)
-        .then(() => res.status(200).send({ data: card }));
+        .then(() => res.send({ data: card }));
     })
     .catch((err) => {
       if (err.errors) {
@@ -95,7 +95,7 @@ module.exports.likeCard = (req, res, next) => {
     { new: true },
   )
     .orFail(() => next(new NotFound('Передан несуществующий _id карточки.')))
-    .then((likes) => res.status(200).send({ data: likes }))
+    .then((likes) => res.send({ data: likes }))
     .catch((err) => {
       if (err.errors) {
         // получили все ключи
@@ -129,7 +129,7 @@ module.exports.dislikeCard = (req, res, next) => {
   )
     .orFail(() => next(new NotFound('Передан несуществующий _id карточки.')))
     .then((card) => {
-      res.status(200).send({ data: card });
+      res.send({ data: card });
     })
     .catch((err) => {
       if (err.errors) {
