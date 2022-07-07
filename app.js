@@ -51,8 +51,6 @@ app.use((err, req, res, next) => {
     res.status(err.statusCode).send({ message: err.message });
     return;
   }
-  // eslint-disable-next-line no-console
-  console.error(err.stack);
 
   res.status(500).send({ message: 'Что-то пошло не так' });
 });
