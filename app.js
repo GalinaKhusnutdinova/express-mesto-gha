@@ -8,6 +8,7 @@ const cardPouter = require('./routes/card');
 const { regexUrl } = require('./utils/utils');
 const { createUser, login } = require('./controllers/users');
 const { isAuthorized } = require('./middlewares/isAuthorized');
+const NotFound = require('./errors/NotFound'); // 404
 
 const app = express();
 // Слушаем 3000 порт
@@ -40,9 +41,7 @@ app.use(isAuthorized);
 app.use('/users', usersPouter);
 app.use('/cards', cardPouter);
 
-app.use((req, res) => {
-  res.status(404).send({ message: 'Некорректный путь' });
-});
+app.use((req, res, next) => next(new NotFound('Некорректный путь')));
 
 app.use(errors()); // обработчик ошибок celebrate
 
