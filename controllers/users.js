@@ -42,7 +42,7 @@ module.exports.findByIdUser = (req, res, next) => {
       //   next(new NotFound(err.message));
       //   return;
       // }
-      next(new InternalServerError('Ошибка по умолчанию.'));
+      next();
     })
     .catch(next);
 };
@@ -76,7 +76,7 @@ module.exports.findOnedUserMe = (req, res, next) => {
       //   next(new NotFound(err.message));
       //   return;
       // }
-      next(new InternalServerError('Ошибка по умолчанию.'));
+      next();
     })
     .catch(next);
 };
@@ -125,7 +125,7 @@ module.exports.createUser = (req, res, next) => {
       //   return;
       // }
 
-      next(new InternalServerError('Ошибка по умолчанию.'));
+      next();
     })
     .catch(next);
 };
@@ -166,7 +166,7 @@ module.exports.updateUserMe = (req, res, next) => {
       //   next(new NotFound(err.message));
       //   return;
       // }
-      next(new InternalServerError('Ошибка по умолчанию.'));
+      next();
     })
     .catch(next);
 };
@@ -206,7 +206,7 @@ module.exports.updateUserAvatar = (req, res, next) => {
       //   next(new NotFound(err.message));
       //   return;
       // }
-      next(new InternalServerError('Ошибка по умолчанию.'));
+      next();
     })
     .catch(next);
 };

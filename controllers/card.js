@@ -43,7 +43,7 @@ module.exports.createCard = (req, res, next) => {
         return;
       }
 
-      next(new InternalServerError('Ошибка по умолчанию.'));
+      next();
     })
     .catch(next);
 };
@@ -82,7 +82,7 @@ module.exports.deleteCard = (req, res, next) => {
       //   next(new NotFound(err.message));
       //   return;
       // }
-      next(new InternalServerError('Ошибка по умолчанию.'));
+      next();
     })
     .catch(next);
 };
@@ -115,7 +115,7 @@ module.exports.likeCard = (req, res, next) => {
       //   next(new NotFound(err.message));
       //   return;
       // }
-      next(new InternalServerError('Ошибка по умолчанию.'));
+      next();
     })
     .catch(next);
 };
@@ -150,7 +150,7 @@ module.exports.dislikeCard = (req, res, next) => {
       //   next(new NotFound(err.message));
       //   return;
       // }
-      next(new InternalServerError('Ошибка по умолчанию.'));
+      next();
     })
     .catch(next);
 };
